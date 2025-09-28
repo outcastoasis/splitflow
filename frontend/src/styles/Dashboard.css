@@ -1,0 +1,136 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+  color: #333;
+}
+
+header,
+.filters,
+.quick-actions,
+.cards,
+.section {
+  max-width: 1200px;
+  margin: auto;
+  padding: 1rem;
+}
+
+header {
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.filters,
+.quick-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+select,
+input[type="text"],
+button {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.card {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex: 1 1 300px;
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+.participant-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.status-offen {
+  background: #ffd1d1;
+  color: #a00;
+}
+
+.status-bezahlt {
+  background: #d1ffd8;
+  color: #0a0;
+}
+
+.section h2 {
+  margin-top: 2rem;
+}
+
+.entry-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.entry-row span {
+  flex: 1;
+}
+
+.entry-row button {
+  flex: 0 0 auto;
+}
+
+.detail-view {
+  background: white;
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 1rem;
+}
+
+.detail-header h2 {
+  margin: 0;
+}
+
+.detail-section {
+  margin-bottom: 2rem;
+}
+
+.detail-section h3 {
+  margin-bottom: 0.5rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #eee;
+}

@@ -22,3 +22,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Node modules
+**/node_modules/
+
+# .env-Dateien
+**/.env
+
+# Build-Dateien
+frontend/build

@@ -1,0 +1,34 @@
+:root {
+  --font-base: "Inter", sans-serif;
+
+  /* Farben (Dark Theme) */
+  --color-bg: #131b23;           /* Hintergrund dunkel */
+  --color-surface: #1e2933;      /* Karten / Sektionen etwas heller */
+  --color-text: #e9f1f7;         /* Standard-Text sehr hell */
+  --color-heading: #ffffff;      /* Überschriften weiß */
+  --color-muted: #cbd5e1;        /* Sekundärer Text */
+
+  --color-primary: #2274a5;      /* Blau für Buttons etc. */
+  --color-primary-dark: #1a5b82;
+
+  --color-accent: #816c61;       /* Warmer Akzent für Labels etc. */
+  --color-accent-dark: #66554b;
+
+  --color-border: #2d3b48;       /* Dunkle Umrandungen */
+
+  --color-error: #f87171;
+  --color-error-bg: #2f1c1c;
+
+  --color-success: #34d399;
+  --color-success-bg: #1c2f25;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+}

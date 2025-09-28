@@ -52,80 +52,88 @@ function Dashboard() {
   }, [API, currentUser]);
 
   return (
-    <div>
+    <div className="dashboard-container">
       <section className="filters">
         <select>
           <option>September 2025</option>
           <option>August 2025</option>
         </select>
         <label>
-          <input type="checkbox" defaultChecked />
-          Nur offene Schulden
+          <input type="checkbox" defaultChecked /> Nur offene Schulden
         </label>
-        <input type="text" placeholder="🔍 Suche nach Name oder Abo" />
+        <input type="text" placeholder="Suche nach Name oder Abo" />
       </section>
 
       <section className="section">
-        <h2>👥 Teilnehmerübersicht</h2>
+        <h2 className="section-title">Teilnehmerübersicht</h2>
         <div className="cards">
           {summary.map((entry) => (
-            <div className="card" key={entry.name}>
-              <h3>{entry.name}</h3>
-              <div className="participant-status">
-                {entry.total > 0 ? (
-                  <>
-                    <span>Offene Schulden: {entry.total.toFixed(2)} CHF</span>
-                    <span className="status-badge status-offen">offen</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Alles bezahlt</span>
-                    <span className="status-badge status-bezahlt">bezahlt</span>
-                  </>
-                )}
+            <div className="card participant-card" key={entry.name}>
+              <div className="card-header">
+                <h3>{entry.name}</h3>
+                <span
+                  className={`status-badge ${
+                    entry.total > 0 ? "status-offen" : "status-bezahlt"
+                  }`}
+                >
+                  {entry.total > 0 ? "offen" : "bezahlt"}
+                </span>
               </div>
-              <button onClick={() => navigate(`/dashboard/${entry.name}`)}>
-                Details anzeigen
-              </button>
-              {entry.total > 0 && (
-                <button onClick={() => navigate(`/dashboard/${entry.name}`)}>
-                  Zahlung erfassen
-                </button>
-              )}
+              <div className="card-body">
+                <p>
+                  {entry.total > 0
+                    ? `Offene Schulden: ${entry.total.toFixed(2)} CHF`
+                    : "Alles bezahlt"}
+                </p>
+                <div className="card-buttons">
+                  <button
+                    className="btn"
+                    onClick={() => navigate(`/dashboard/${entry.name}`)}
+                  >
+                    Details anzeigen
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       <section className="section">
-        <h2>📦 Eigene Abos</h2>
+        <h2 className="section-title">Eigene Abos</h2>
         <div className="cards">
           {subscriptions.map((sub) => (
-            <div className="card" key={sub._id}>
+            <div className="card subscription-card" key={sub._id}>
               <h3>
                 {sub.name} – {sub.amount} CHF
               </h3>
-              <p>
+              <p className="sub-list">
                 {sub.participants
                   .map((p) => `${p.name} (${p.share} CHF)`)
                   .join(", ")}
               </p>
-              <button onClick={() => navigate(`/edit-subscription/${sub._id}`)}>
-                Abo bearbeiten
-              </button>
-              <button
-                onClick={() => navigate(`/preview-subscription/${sub._id}`)}
-              >
-                Vorschau anzeigen
-              </button>
+              <div className="card-buttons">
+                <button
+                  className="btn"
+                  onClick={() => navigate(`/edit-subscription/${sub._id}`)}
+                >
+                  Abo bearbeiten
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => navigate(`/preview-subscription/${sub._id}`)}
+                >
+                  Vorschau anzeigen
+                </button>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       <section className="section">
-        <h2>📋 Schulden (letzte Einträge)</h2>
-        <div className="card">
+        <h2 className="section-title">Letzte Schulden</h2>
+        <div className="card debt-list">
           {recentDebts.map((debt, idx) => (
             <div className="entry-row" key={idx}>
               <span>{new Date(debt.date).toLocaleDateString("de-CH")}</span>
@@ -136,6 +144,7 @@ function Dashboard() {
               <span>{debt.description}</span>
               {debt.status === "open" ? (
                 <button
+                  className="btn"
                   onClick={() =>
                     navigate(
                       `/dashboard/${

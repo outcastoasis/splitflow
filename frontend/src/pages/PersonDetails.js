@@ -6,12 +6,13 @@ function PersonDetails() {
   const currentUser = "Jascha";
   const { name } = useParams();
   const navigate = useNavigate();
+  const API = process.env.REACT_APP_API;
 
   const [debts, setDebts] = useState([]);
   const [paymentInputs, setPaymentInputs] = useState({});
 
   const fetchDebts = useCallback(async () => {
-    const res = await fetch(`/api/debts?user=${currentUser}`);
+    const res = await fetch(`${API}/api/debts?user=${currentUser}`);
     const data = await res.json();
     const filtered = data.filter(
       (d) =>
@@ -19,7 +20,7 @@ function PersonDetails() {
         (d.debtor === name && d.creditor === currentUser)
     );
     setDebts(filtered);
-  }, [currentUser, name]);
+  }, [API, currentUser, name]);
 
   useEffect(() => {
     fetchDebts();
@@ -36,7 +37,7 @@ function PersonDetails() {
       return;
     }
 
-    await fetch("/api/payments", {
+    await fetch(`${API}/api/payments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

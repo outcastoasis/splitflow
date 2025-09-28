@@ -6,6 +6,7 @@ import "../styles/Dashboard.css";
 function Dashboard() {
   const currentUser = "Jascha";
   const navigate = useNavigate();
+  const API = process.env.REACT_APP_API;
 
   const [summary, setSummary] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
@@ -13,7 +14,7 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const resDebts = await fetch(`/api/debts?user=${currentUser}`);
+      const resDebts = await fetch(`${API}/api/debts?user=${currentUser}`);
       const data = await resDebts.json();
 
       const grouped = {};
@@ -40,13 +41,15 @@ function Dashboard() {
         .slice(0, 5);
       setRecentDebts(sortedDebts);
 
-      const resSubs = await fetch(`/api/subscriptions?user=${currentUser}`);
+      const resSubs = await fetch(
+        `${API}/api/subscriptions?user=${currentUser}`
+      );
       const subs = await resSubs.json();
       setSubscriptions(subs);
     };
 
     fetchData();
-  }, []);
+  }, [API, currentUser]);
 
   return (
     <div>

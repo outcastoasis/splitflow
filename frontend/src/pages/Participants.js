@@ -5,22 +5,24 @@ function Participants() {
   const [name, setName] = useState("");
   const currentUser = "Jascha"; // Platzhalter
 
+  const API = process.env.REACT_APP_API;
+
   // Teilnehmer abrufen
   const fetchParticipants = async () => {
-    const res = await fetch(`/api/participants?user=${currentUser}`);
+    const res = await fetch(`${API}/api/participants?user=${currentUser}`);
     const data = await res.json();
     setParticipants(data);
   };
 
   useEffect(() => {
     fetchParticipants();
-  }, []);
+  }, [API]);
 
   // Teilnehmer hinzufügen
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!name) return;
-    await fetch("/api/participants", {
+    await fetch(`${API}/api/participants`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, createdBy: currentUser }),
@@ -31,7 +33,7 @@ function Participants() {
 
   // Teilnehmer löschen
   const handleDelete = async (id) => {
-    await fetch(`/api/participants/${id}`, { method: "DELETE" });
+    await fetch(`${API}/api/participants/${id}`, { method: "DELETE" });
     fetchParticipants();
   };
 

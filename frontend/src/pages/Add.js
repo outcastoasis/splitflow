@@ -1,7 +1,9 @@
+// frontend/src/pages/Add.js
 import React, { useEffect, useState } from "react";
 
 function Subscriptions() {
   const currentUser = "Jascha";
+  const API = process.env.REACT_APP_API; // <-- Basis-URL aus .env
 
   const [subscriptions, setSubscriptions] = useState([]);
   const [availableParticipants, setAvailableParticipants] = useState([]);
@@ -19,11 +21,15 @@ function Subscriptions() {
   // Daten laden: Abos + Teilnehmer
   useEffect(() => {
     const fetchData = async () => {
-      const resSubs = await fetch(`/api/subscriptions?user=${currentUser}`);
+      const resSubs = await fetch(
+        `${API}/api/subscriptions?user=${currentUser}`
+      );
       const subs = await resSubs.json();
       setSubscriptions(subs);
 
-      const resParts = await fetch(`/api/participants?user=${currentUser}`);
+      const resParts = await fetch(
+        `${API}/api/participants?user=${currentUser}`
+      );
       const parts = await resParts.json();
 
       // currentUser manuell hinzufügen, falls nicht enthalten
@@ -36,7 +42,7 @@ function Subscriptions() {
     };
 
     fetchData();
-  }, []);
+  }, [API, currentUser]);
 
   // Teilnehmer hinzufügen
   const handleAddParticipant = () => {
@@ -121,7 +127,7 @@ function Subscriptions() {
       })),
     };
 
-    await fetch("/api/subscriptions", {
+    await fetch(`${API}/api/subscriptions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -132,9 +138,39 @@ function Subscriptions() {
     setAmount("");
     setStartDate("");
     setParticipants([]);
-    const resSubs = await fetch(`/api/subscriptions?user=${currentUser}`);
+    const resSubs = await fetch(`${API}/api/subscriptions?user=${currentUser}`);
     const subs = await resSubs.json();
     setSubscriptions(subs);
+  };
+
+  // Einmalige Schuld absenden
+  const handleOneTimeDebt = async (e) => {
+    e.preventDefault();
+
+    if (!oneCreditor || !oneDebtor || !oneAmount || !oneDate) {
+      alert("Bitte alle Felder ausfüllen.");
+      return;
+    }
+
+    await fetch(`${API}/api/debts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        creditor: oneCreditor,
+        debtor: oneDebtor,
+        amount: parseFloat(oneAmount),
+        description: oneDescription,
+        date: oneDate,
+      }),
+    });
+
+    alert("Schuld gespeichert!");
+
+    setOneCreditor("");
+    setOneDebtor("");
+    setOneAmount("");
+    setOneDescription("");
+    setOneDate("");
   };
 
   return (
@@ -217,49 +253,21 @@ function Subscriptions() {
       <ul>
         {subscriptions.map((sub) => (
           <li key={sub._id}>
-            {sub.name} – {sub.amount}€ – Start:{" "}
+            {sub.name} – {sub.amount} CHF – Start:{" "}
             {new Date(sub.startDate).toLocaleDateString("de-CH")}
             <ul>
               {sub.participants.map((p, i) => (
                 <li key={i}>
-                  {p.name}: {p.share}€
+                  {p.name}: {p.share} CHF
                 </li>
               ))}
             </ul>
           </li>
         ))}
       </ul>
+
       <h2>Einmalige Schuld erfassen</h2>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-
-          if (!oneCreditor || !oneDebtor || !oneAmount || !oneDate) {
-            alert("Bitte alle Felder ausfüllen.");
-            return;
-          }
-
-          await fetch("/api/debts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              creditor: oneCreditor,
-              debtor: oneDebtor,
-              amount: parseFloat(oneAmount),
-              description: oneDescription,
-              date: oneDate,
-            }),
-          });
-
-          alert("Schuld gespeichert!");
-
-          setOneCreditor("");
-          setOneDebtor("");
-          setOneAmount("");
-          setOneDescription("");
-          setOneDate("");
-        }}
-      >
+      <form onSubmit={handleOneTimeDebt}>
         <div>
           <label>{`Wer schuldet wem?`}</label>
           <div style={{ display: "flex", gap: "10px" }}>

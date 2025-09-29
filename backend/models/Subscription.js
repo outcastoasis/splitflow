@@ -4,8 +4,10 @@ const subscriptionSchema = new mongoose.Schema({
   name: { type: String, required: true },
   amount: { type: Number, required: true },
   startDate: { type: Date, required: true },
-  nextDueDate: { type: Date, required: true }, // NEU: für nächste Schulden-Erstellung
+  nextDueDate: { type: Date, required: true }, 
   isActive: { type: Boolean, default: true },
+  isPaused: { type: Boolean, default: false }, 
+  isDeleted: { type: Boolean, default: false }, 
   createdBy: { type: String, required: true }, // z. B. "Jascha"
   participants: [
     {

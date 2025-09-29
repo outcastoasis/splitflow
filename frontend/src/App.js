@@ -6,6 +6,7 @@ import Participants from "./pages/Participants";
 import Add from "./pages/Add";
 import Navbar from "./components/Navbar";
 import PersonDetails from "./pages/PersonDetails";
+import EditSubscription from "./pages/EditSubscription";
 
 import "./styles/App.css";
 
@@ -19,7 +20,7 @@ function App() {
           <Route path="/participants" element={<Participants />} />
           <Route path="/add" element={<Add />} />
           <Route path="/dashboard/:name" element={<PersonDetails />} />
-
+          <Route path="/edit-subscription/:id" element={<EditSubscription />} />
         </Routes>
       </div>
     </Router>

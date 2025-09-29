@@ -47,7 +47,14 @@ const createMonthlyDebts = async (req, res) => {
         }
 
         // nextDueDate um 1 Monat erhöhen (Monatsende)
-        sub.nextDueDate = due.add(1, "month").endOf("month").toDate();
+        sub.nextDueDate = due
+          .add(1, "month")
+          .endOf("month")
+          .hour(12)
+          .minute(0)
+          .second(0)
+          .millisecond(0)
+          .toDate();
         await sub.save();
       }
     }

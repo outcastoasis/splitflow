@@ -25,7 +25,14 @@ router.post("/", async (req, res) => {
   const { name, amount, startDate, createdBy, participants } = req.body;
   try {
     // immer Ende nächsten Monats setzen
-    const nextDue = dayjs(startDate).add(1, "month").endOf("month").toDate();
+    const nextDue = dayjs(startDate)
+      .add(1, "month")
+      .endOf("month")
+      .hour(12) // mittags statt 23:59:59.999
+      .minute(0)
+      .second(0)
+      .millisecond(0)
+      .toDate();
 
     const subscription = new Subscription({
       name,

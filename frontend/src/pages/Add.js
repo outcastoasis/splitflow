@@ -1,9 +1,10 @@
-// frontend/src/pages/Add.js
+// src/pages/Add.js
 import React, { useEffect, useState } from "react";
+import "../styles/Add.css";
 
 function Subscriptions() {
   const currentUser = "Jascha";
-  const API = process.env.REACT_APP_API; // <-- Basis-URL aus .env
+  const API = process.env.REACT_APP_API;
 
   const [subscriptions, setSubscriptions] = useState([]);
   const [availableParticipants, setAvailableParticipants] = useState([]);
@@ -18,7 +19,6 @@ function Subscriptions() {
   const [oneDescription, setOneDescription] = useState("");
   const [oneDate, setOneDate] = useState("");
 
-  // Daten laden: Abos + Teilnehmer
   useEffect(() => {
     const fetchData = async () => {
       const resSubs = await fetch(
@@ -32,19 +32,16 @@ function Subscriptions() {
       );
       const parts = await resParts.json();
 
-      // currentUser manuell hinzufügen, falls nicht enthalten
       const includesSelf = parts.some((p) => p.name === currentUser);
       const combined = includesSelf
         ? parts
         : [...parts, { name: currentUser, _id: "self" }];
-
       setAvailableParticipants(combined);
     };
 
     fetchData();
   }, [API, currentUser]);
 
-  // Teilnehmer hinzufügen
   const handleAddParticipant = () => {
     const usedNames = participants.map((p) => p.name);
     const unused = availableParticipants.find(
@@ -57,14 +54,12 @@ function Subscriptions() {
     ]);
   };
 
-  // Teilnehmer löschen
   const handleRemoveParticipant = (index) => {
     const updated = [...participants];
     updated.splice(index, 1);
     setParticipants(updated);
   };
 
-  // Teilnehmerfelder ändern
   const handleParticipantChange = (index, field, value) => {
     const updated = [...participants];
     updated[index][field] = value;
@@ -72,7 +67,6 @@ function Subscriptions() {
     setParticipants(updated);
   };
 
-  // Anteil zurücksetzen (z. B. per Doppelklick)
   const resetShare = (index) => {
     const updated = [...participants];
     updated[index].isCustom = false;
@@ -80,7 +74,6 @@ function Subscriptions() {
     setParticipants(updated);
   };
 
-  // Dynamische Anteilverteilung
   useEffect(() => {
     const total = parseFloat(amount);
     if (!total || participants.length === 0) return;
@@ -100,7 +93,6 @@ function Subscriptions() {
       return { ...p, share: perPerson.toFixed(2) };
     });
 
-    // Nur aktualisieren, wenn sich etwas ändert
     const changed =
       participants.length !== updated.length ||
       participants.some(
@@ -112,10 +104,8 @@ function Subscriptions() {
     }
   }, [amount, participants]);
 
-  // Abo absenden
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       name,
       amount: parseFloat(amount),
@@ -133,7 +123,6 @@ function Subscriptions() {
       body: JSON.stringify(payload),
     });
 
-    // Reset + Neu laden
     setName("");
     setAmount("");
     setStartDate("");
@@ -143,10 +132,8 @@ function Subscriptions() {
     setSubscriptions(subs);
   };
 
-  // Einmalige Schuld absenden
   const handleOneTimeDebt = async (e) => {
     e.preventDefault();
-
     if (!oneCreditor || !oneDebtor || !oneAmount || !oneDate) {
       alert("Bitte alle Felder ausfüllen.");
       return;
@@ -165,7 +152,6 @@ function Subscriptions() {
     });
 
     alert("Schuld gespeichert!");
-
     setOneCreditor("");
     setOneDebtor("");
     setOneAmount("");
@@ -174,10 +160,11 @@ function Subscriptions() {
   };
 
   return (
-    <div>
-      <h2>Abo erstellen</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="add-container">
+      <h2 className="add-heading">Abo erstellen</h2>
+      <form onSubmit={handleSubmit} className="add-form">
         <input
+          className="add-input"
           type="text"
           placeholder="Abo-Name"
           value={name}
@@ -185,6 +172,7 @@ function Subscriptions() {
           required
         />
         <input
+          className="add-input"
           type="number"
           placeholder="Gesamtbetrag"
           value={amount}
@@ -192,16 +180,18 @@ function Subscriptions() {
           required
         />
         <input
+          className="add-input"
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           required
         />
 
-        <h4>Teilnehmeranteile</h4>
+        <h4 className="add-subheading">Teilnehmeranteile</h4>
         {participants.map((p, index) => (
-          <div key={index}>
+          <div key={index} className="add-participant-row">
             <select
+              className="add-select"
               value={p.name}
               onChange={(e) =>
                 handleParticipantChange(index, "name", e.target.value)
@@ -221,6 +211,7 @@ function Subscriptions() {
             </select>
 
             <input
+              className="add-input small"
               type="number"
               value={p.share}
               onChange={(e) =>
@@ -234,6 +225,7 @@ function Subscriptions() {
             />
 
             <button
+              className="add-remove-btn"
               type="button"
               onClick={() => handleRemoveParticipant(index)}
             >
@@ -242,36 +234,25 @@ function Subscriptions() {
           </div>
         ))}
 
-        <button type="button" onClick={handleAddParticipant}>
+        <button
+          className="add-button secondary"
+          type="button"
+          onClick={handleAddParticipant}
+        >
           ➕ Teilnehmer hinzufügen
         </button>
-
-        <button type="submit">✅ Abo speichern</button>
+        <button className="add-button primary" type="submit">
+          ✅ Abo speichern
+        </button>
       </form>
 
-      <h3>Meine Abos</h3>
-      <ul>
-        {subscriptions.map((sub) => (
-          <li key={sub._id}>
-            {sub.name} – {sub.amount} CHF – Start:{" "}
-            {new Date(sub.startDate).toLocaleDateString("de-CH")}
-            <ul>
-              {sub.participants.map((p, i) => (
-                <li key={i}>
-                  {p.name}: {p.share} CHF
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-
-      <h2>Einmalige Schuld erfassen</h2>
-      <form onSubmit={handleOneTimeDebt}>
-        <div>
-          <label>{`Wer schuldet wem?`}</label>
-          <div style={{ display: "flex", gap: "10px" }}>
+      <h2 className="add-heading">Einmalige Schuld erfassen</h2>
+      <form onSubmit={handleOneTimeDebt} className="add-form">
+        <div className="add-label-group">
+          <label>Wer schuldet wem?</label>
+          <div className="add-inline-group">
             <select
+              className="add-select"
               value={oneDebtor}
               onChange={(e) => setOneDebtor(e.target.value)}
               required
@@ -285,6 +266,7 @@ function Subscriptions() {
             </select>
             <span>schuldet</span>
             <select
+              className="add-select"
               value={oneCreditor}
               onChange={(e) => setOneCreditor(e.target.value)}
               required
@@ -299,9 +281,10 @@ function Subscriptions() {
           </div>
         </div>
 
-        <div>
+        <div className="add-label-group">
           <label>Betrag (CHF):</label>
           <input
+            className="add-input"
             type="number"
             step="0.01"
             value={oneAmount}
@@ -310,9 +293,10 @@ function Subscriptions() {
           />
         </div>
 
-        <div>
+        <div className="add-label-group">
           <label>Wofür?</label>
           <input
+            className="add-input"
             type="text"
             value={oneDescription}
             onChange={(e) => setOneDescription(e.target.value)}
@@ -320,9 +304,10 @@ function Subscriptions() {
           />
         </div>
 
-        <div>
+        <div className="add-label-group">
           <label>Wann?</label>
           <input
+            className="add-input"
             type="date"
             value={oneDate}
             onChange={(e) => setOneDate(e.target.value)}
@@ -330,7 +315,9 @@ function Subscriptions() {
           />
         </div>
 
-        <button type="submit">➕ Einmalige Schuld erfassen</button>
+        <button className="add-button primary" type="submit">
+          ➕ Einmalige Schuld erfassen
+        </button>
       </form>
     </div>
   );

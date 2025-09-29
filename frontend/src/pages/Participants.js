@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
+import "../styles/Participants.css";
 
 function Participants() {
   const [participants, setParticipants] = useState([]);
   const [name, setName] = useState("");
-  const currentUser = "Jascha"; // Platzhalter
+  const currentUser = "Jascha";
 
   const API = process.env.REACT_APP_API;
 
-  // Teilnehmer abrufen
   const fetchParticipants = async () => {
     const res = await fetch(`${API}/api/participants?user=${currentUser}`);
     const data = await res.json();
@@ -18,7 +18,6 @@ function Participants() {
     fetchParticipants();
   }, [API]);
 
-  // Teilnehmer hinzufügen
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!name) return;
@@ -31,16 +30,15 @@ function Participants() {
     fetchParticipants();
   };
 
-  // Teilnehmer löschen
   const handleDelete = async (id) => {
     await fetch(`${API}/api/participants/${id}`, { method: "DELETE" });
     fetchParticipants();
   };
 
   return (
-    <div>
+    <div className="participants-container">
       <h2>Teilnehmer verwalten</h2>
-      <form onSubmit={handleAdd}>
+      <form className="participants-form" onSubmit={handleAdd}>
         <input
           type="text"
           placeholder="Name eingeben"
@@ -50,10 +48,11 @@ function Participants() {
         <button type="submit">Hinzufügen</button>
       </form>
 
-      <ul>
+      <ul className="participants-list">
         {participants.map((p) => (
           <li key={p._id}>
-            {p.name} <button onClick={() => handleDelete(p._id)}>🗑️</button>
+            {p.name}
+            <button onClick={() => handleDelete(p._id)}>Entfernen</button>
           </li>
         ))}
       </ul>

@@ -2,25 +2,42 @@
   --font-base: "Inter", sans-serif;
 
   /* Farben (Dark Theme) */
-  --color-bg: #131b23;           /* Hintergrund dunkel */
-  --color-surface: #1e2933;      /* Karten / Sektionen etwas heller */
-  --color-text: #e9f1f7;         /* Standard-Text sehr hell */
-  --color-heading: #ffffff;      /* Überschriften weiß */
-  --color-muted: #cbd5e1;        /* Sekundärer Text */
+  --color-bg: #131b23; /* Hintergrund dunkel */
+  --color-surface: #1e2933; /* Karten / Sektionen etwas heller */
+  --color-text: #e9f1f7; /* Standard-Text sehr hell */
+  --color-heading: #ffffff; /* Überschriften weiß */
+  --color-muted: #cbd5e1; /* Sekundärer Text */
 
-  --color-primary: #2274a5;      /* Blau für Buttons etc. */
+  --color-primary: #2274a5; /* Blau für Buttons etc. */
   --color-primary-dark: #1a5b82;
 
-  --color-accent: #816c61;       /* Warmer Akzent für Labels etc. */
+  --color-accent: #816c61; /* Warmer Akzent für Labels etc. */
   --color-accent-dark: #66554b;
 
-  --color-border: #2d3b48;       /* Dunkle Umrandungen */
+  --color-border: #2d3b48; /* Dunkle Umrandungen */
 
   --color-error: #f87171;
   --color-error-bg: #2f1c1c;
 
   --color-success: #34d399;
   --color-success-bg: #1c2f25;
+
+  /* Buttons */
+  --button-bg: var(--color-primary);
+  --button-bg-hover: var(--color-primary-dark);
+  --button-text: #ffffff;
+
+  /* Input */
+  --input-bg: #2b3945;
+  --input-border: var(--color-border);
+  --input-text: var(--color-text);
+  --input-placeholder: #94a3b8;
+
+  /* Badges */
+  --badge-success-bg: var(--color-success);
+  --badge-success-text: #062e23;
+  --badge-error-bg: var(--color-error);
+  --badge-error-text: #3b0d0d;
 
   /* Spacing */
   --space-xs: 0.25rem;

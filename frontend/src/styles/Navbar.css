@@ -56,7 +56,7 @@
 
   .navbar-links {
     position: fixed;
-    top: 58px; /* Höhe deiner Navbar (anpassen falls nötig) */
+    top: 44px; /* Höhe deiner Navbar (anpassen falls nötig) */
     left: 0;
     right: 0;
     flex-direction: column;

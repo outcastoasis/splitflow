@@ -19,14 +19,7 @@
   font-size: 1.2rem;
   font-weight: bold;
   color: #333;
-}
-
-.burger {
-  display: none;
-  background: none;
-  font-size: 1.5rem;
-  border: none;
-  cursor: pointer;
+  text-decoration: none;
 }
 
 .navbar-links {
@@ -48,15 +41,55 @@
   border-radius: 5px;
 }
 
-/* 🔽 Responsive Styles */
+/* Zusätzlicher Bereich für + und ☰ */
+.navbar-actions {
+  display: none; /* Nur auf Mobile */
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.navbar-add-button {
+  display: none;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  transition: background 0.2s;
+}
+
+.navbar-add-button:hover {
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+.burger {
+  display: none;
+  background: none;
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+/* 🔽 Mobile Styles */
 @media (max-width: 768px) {
+  .navbar-actions {
+    display: flex;
+  }
+
+  .navbar-add-button {
+    display: inline;
+  }
+
   .burger {
     display: block;
   }
 
   .navbar-links {
     position: fixed;
-    top: 44px; /* Höhe deiner Navbar (anpassen falls nötig) */
+    top: 44px; /* Höhe der Navbar */
     left: 0;
     right: 0;
     flex-direction: column;

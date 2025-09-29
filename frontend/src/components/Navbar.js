@@ -8,10 +8,10 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <span className="navbar-logo">Splitflow</span>
-        <button className="burger" onClick={() => setOpen(!open)}>
-          ☰
-        </button>
+        <Link to="/" className="navbar-logo">
+          Splitflow
+        </Link>
+
         <ul className={`navbar-links ${open ? "open" : ""}`}>
           <li>
             <Link to="/" onClick={() => setOpen(false)}>
@@ -29,6 +29,15 @@ function Navbar() {
             </Link>
           </li>
         </ul>
+
+        <div className="navbar-actions">
+          <Link to="/add" className="navbar-add-button">
+            ＋
+          </Link>
+          <button className="burger" onClick={() => setOpen(!open)}>
+            ☰
+          </button>
+        </div>
       </div>
     </nav>
   );

@@ -129,18 +129,19 @@ body {
 }
 
 .entry-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 110px 1fr 90px 1fr auto; /* Datum | Von→An | Betrag | Beschreibung | Button */
   align-items: center;
-  gap: var(--space-sm);
+  gap: 0.5rem;
   padding: 0.6rem 0;
   border-bottom: 1px solid var(--color-border);
   font-size: 0.88rem;
 }
 
 .entry-row span {
-  flex: 1 1 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .entry-row button {
@@ -155,4 +156,20 @@ body {
 
 .entry-row button:hover {
   background-color: var(--color-accent-dark);
+}
+
+.entry-row > * {
+  flex: 1 1 150px;
+}
+
+.sub-next-info {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.status-schuldest {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
 }

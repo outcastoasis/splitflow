@@ -1,3 +1,4 @@
+// backend/routes/generateDebts.js
 const express = require("express");
 const router = express.Router();
 const Subscription = require("../models/Subscription");
@@ -29,7 +30,9 @@ router.post("/", async (req, res) => {
 
     for (const sub of subscriptions) {
       for (const participant of sub.participants) {
-        // Prüfen, ob diese Schuld schon existiert
+        // ❌ Keine Schulden an sich selbst erzeugen
+        if (participant.name === user) continue;
+
         const exists = await Debt.findOne({
           subscriptionId: sub._id,
           debtor: participant.name,
@@ -47,6 +50,7 @@ router.post("/", async (req, res) => {
             )})`,
             date: targetMonth,
             subscriptionId: sub._id,
+            isFromSubscription: true,
           });
           createdCount++;
         }

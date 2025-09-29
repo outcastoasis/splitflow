@@ -19,6 +19,9 @@
   --color-error: #f87171;
   --color-error-bg: #2f1c1c;
 
+  --color-warning: #fbbf24; /* helles Orange */
+  --color-warning-bg: #332a12; /* dunkler Hintergrund */
+
   --color-success: #34d399;
   --color-success-bg: #1c2f25;
 

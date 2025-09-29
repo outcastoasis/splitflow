@@ -35,4 +35,69 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Zahlung auf Abo-Schulden verteilen
+router.post("/abos", async (req, res) => {
+  const { debtor, creditor, amount } = req.body;
+
+  if (!debtor || !creditor || !amount || amount <= 0) {
+    return res.status(400).json({ error: "Ungültige Angaben" });
+  }
+
+  try {
+    const debts = await Debt.find({
+      debtor,
+      creditor,
+      isFromSubscription: true,
+      status: { $ne: "paid" },
+    }).sort({ date: 1 }); // älteste zuerst
+
+    let remaining = amount;
+    const createdPayments = [];
+
+    for (const debt of debts) {
+      if (remaining <= 0) break;
+
+      const alreadyPaid = debt.paidAmount || 0;
+      const unpaid = debt.amount - alreadyPaid;
+
+      let paymentAmount = 0;
+
+      if (remaining >= unpaid) {
+        // Ganze Schuld begleichen
+        debt.paidAmount = debt.amount;
+        debt.status = "paid";
+        paymentAmount = unpaid;
+        remaining -= unpaid;
+      } else {
+        // Teilzahlung
+        debt.paidAmount = alreadyPaid + remaining;
+        debt.status = "partial";
+        paymentAmount = remaining;
+        remaining = 0;
+      }
+
+      const payment = new Payment({
+        debtId: debt._id,
+        from: debtor,
+        to: creditor,
+        amount: paymentAmount,
+      });
+
+      await payment.save();
+      await debt.save();
+      createdPayments.push(payment);
+    }
+
+    res.json({
+      message: "Abo-Zahlung verarbeitet",
+      totalProcessed: amount - remaining,
+      remaining,
+      payments: createdPayments,
+    });
+  } catch (err) {
+    console.error("Fehler bei Abo-Zahlung:", err);
+    res.status(500).json({ error: "Fehler bei Abo-Zahlung" });
+  }
+});
+
 module.exports = router;

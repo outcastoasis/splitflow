@@ -1,10 +1,12 @@
 // src/pages/Add.js
 import React, { useEffect, useState } from "react";
 import "../styles/Add.css";
+import { useNavigate } from "react-router-dom";
 
 function Subscriptions() {
   const currentUser = "Jascha";
   const API = process.env.REACT_APP_API;
+  const navigate = useNavigate();
 
   const [subscriptions, setSubscriptions] = useState([]);
   const [availableParticipants, setAvailableParticipants] = useState([]);
@@ -123,15 +125,17 @@ function Subscriptions() {
       body: JSON.stringify(payload),
     });
 
+    // Formular zurücksetzen
     setName("");
     setAmount("");
     setStartDate("");
     setParticipants([]);
-    const resSubs = await fetch(`${API}/api/subscriptions?user=${currentUser}`);
-    const subs = await resSubs.json();
-    setSubscriptions(subs);
+
+    // Zur Startseite (Dashboard) navigieren
+    navigate("/");
   };
 
+  // Anpassung handleOneTimeDebt (Einmalige Schuld erfassen)
   const handleOneTimeDebt = async (e) => {
     e.preventDefault();
     if (!oneCreditor || !oneDebtor || !oneAmount || !oneDate) {
@@ -151,16 +155,96 @@ function Subscriptions() {
       }),
     });
 
+    // Optionaler Alert
     alert("Schuld gespeichert!");
+
+    // Formular zurücksetzen
     setOneCreditor("");
     setOneDebtor("");
     setOneAmount("");
     setOneDescription("");
     setOneDate("");
+
+    // Zur Startseite navigieren
+    navigate("/");
   };
 
   return (
     <div className="add-container">
+      <h2 className="add-heading">Einmalige Schuld erfassen</h2>
+      <form onSubmit={handleOneTimeDebt} className="add-form">
+        <div className="add-label-group">
+          <label>Wer schuldet wem?</label>
+          <div className="add-inline-group">
+            <select
+              className="add-select"
+              value={oneDebtor}
+              onChange={(e) => setOneDebtor(e.target.value)}
+              required
+            >
+              <option value="">-- Name --</option>
+              {availableParticipants.map((p) => (
+                <option key={p._id} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <span>schuldet</span>
+            <select
+              className="add-select"
+              value={oneCreditor}
+              onChange={(e) => setOneCreditor(e.target.value)}
+              required
+            >
+              <option value="">-- Name --</option>
+              {availableParticipants.map((p) => (
+                <option key={p._id} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="add-label-group">
+          <label>Betrag (CHF):</label>
+          <input
+            className="add-input"
+            type="number"
+            step="0.01"
+            value={oneAmount}
+            onChange={(e) => setOneAmount(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="add-label-group">
+          <label>Wofür?</label>
+          <input
+            className="add-input"
+            type="text"
+            value={oneDescription}
+            onChange={(e) => setOneDescription(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="add-label-group">
+          <label>Wann?</label>
+          <input
+            className="add-input"
+            type="date"
+            value={oneDate}
+            onChange={(e) => setOneDate(e.target.value)}
+            required
+          />
+        </div>
+
+        <button className="add-button primary" type="submit">
+          ➕ Einmalige Schuld erfassen
+        </button>
+      </form>
+
       <h2 className="add-heading">Abo erstellen</h2>
       <form onSubmit={handleSubmit} className="add-form">
         <input
@@ -243,80 +327,6 @@ function Subscriptions() {
         </button>
         <button className="add-button primary" type="submit">
           ✅ Abo speichern
-        </button>
-      </form>
-
-      <h2 className="add-heading">Einmalige Schuld erfassen</h2>
-      <form onSubmit={handleOneTimeDebt} className="add-form">
-        <div className="add-label-group">
-          <label>Wer schuldet wem?</label>
-          <div className="add-inline-group">
-            <select
-              className="add-select"
-              value={oneDebtor}
-              onChange={(e) => setOneDebtor(e.target.value)}
-              required
-            >
-              <option value="">-- Name --</option>
-              {availableParticipants.map((p) => (
-                <option key={p._id} value={p.name}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-            <span>schuldet</span>
-            <select
-              className="add-select"
-              value={oneCreditor}
-              onChange={(e) => setOneCreditor(e.target.value)}
-              required
-            >
-              <option value="">-- Name --</option>
-              {availableParticipants.map((p) => (
-                <option key={p._id} value={p.name}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="add-label-group">
-          <label>Betrag (CHF):</label>
-          <input
-            className="add-input"
-            type="number"
-            step="0.01"
-            value={oneAmount}
-            onChange={(e) => setOneAmount(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="add-label-group">
-          <label>Wofür?</label>
-          <input
-            className="add-input"
-            type="text"
-            value={oneDescription}
-            onChange={(e) => setOneDescription(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="add-label-group">
-          <label>Wann?</label>
-          <input
-            className="add-input"
-            type="date"
-            value={oneDate}
-            onChange={(e) => setOneDate(e.target.value)}
-            required
-          />
-        </div>
-
-        <button className="add-button primary" type="submit">
-          ➕ Einmalige Schuld erfassen
         </button>
       </form>
     </div>

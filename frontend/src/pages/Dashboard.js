@@ -18,28 +18,48 @@ function Dashboard() {
       const data = await resDebts.json();
 
       const grouped = {};
-      data.forEach((debt) => {
-        if (debt.status !== "open") return;
-        const other =
-          debt.creditor === currentUser ? debt.debtor : debt.creditor;
-        const amount =
-          debt.creditor === currentUser
-            ? debt.amount - (debt.paidAmount || 0)
-            : -(debt.amount - (debt.paidAmount || 0));
-        if (!grouped[other]) grouped[other] = 0;
-        grouped[other] += amount;
+
+      data
+        .filter((debt) => debt.status === "open")
+        .forEach((debt) => {
+          const other =
+            debt.creditor === currentUser ? debt.debtor : debt.creditor;
+
+          const amountLeft = debt.amount - (debt.paidAmount || 0);
+
+          if (!grouped[other]) grouped[other] = { youGet: 0, youOwe: 0 };
+
+          if (debt.creditor === currentUser) {
+            // Du bist Gläubiger
+            grouped[other].youGet += amountLeft;
+          } else {
+            // Du bist Schuldner
+            grouped[other].youOwe += amountLeft;
+          }
+        });
+
+      const summaryArray = Object.entries(grouped).map(([name, values]) => {
+        const net = values.youGet - values.youOwe;
+        return {
+          name,
+          net,
+          youGet: values.youGet,
+          youOwe: values.youOwe,
+        };
       });
 
-      const summaryArray = Object.entries(grouped).map(([name, total]) => ({
-        name,
-        total,
-      }));
       setSummary(summaryArray);
 
-      const sortedDebts = data
+      const allDebts = data
+        .filter(
+          (debt) =>
+            (debt.creditor === currentUser || debt.debtor === currentUser) &&
+            debt.status !== "paid"
+        )
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
-      setRecentDebts(sortedDebts);
+        .slice(0, 10);
+
+      setRecentDebts(allDebts);
 
       const resSubs = await fetch(
         `${API}/api/subscriptions?user=${currentUser}`
@@ -73,16 +93,26 @@ function Dashboard() {
                 <h3>{entry.name}</h3>
                 <span
                   className={`status-badge ${
-                    entry.total > 0 ? "status-offen" : "status-bezahlt"
+                    entry.net > 0
+                      ? "status-offen" // du bekommst Geld
+                      : entry.net < 0
+                      ? "status-schuldest" // du schuldest Geld
+                      : "status-bezahlt" // alles bezahlt
                   }`}
                 >
-                  {entry.total > 0 ? "offen" : "bezahlt"}
+                  {entry.net > 0
+                    ? "offen"
+                    : entry.net < 0
+                    ? "du schuldest"
+                    : "bezahlt"}
                 </span>
               </div>
               <div className="card-body">
                 <p>
-                  {entry.total > 0
-                    ? `Offene Schulden: ${entry.total.toFixed(2)} CHF`
+                  {entry.net > 0
+                    ? `Du bekommst ${entry.net.toFixed(2)} CHF`
+                    : entry.net < 0
+                    ? `Du schuldest ${Math.abs(entry.net).toFixed(2)} CHF`
                     : "Alles bezahlt"}
                 </p>
                 <div className="card-buttons">
@@ -105,12 +135,27 @@ function Dashboard() {
           {subscriptions.map((sub) => (
             <div className="card subscription-card" key={sub._id}>
               <h3>
-                {sub.name} – {sub.amount} CHF
+                {sub.name} – {sub.amount.toFixed(2)} CHF
               </h3>
               <p className="sub-list">
                 {sub.participants
-                  .map((p) => `${p.name} (${p.share} CHF)`)
+                  .map((p) => `${p.name} (${p.share.toFixed(2)} CHF)`)
                   .join(", ")}
+              </p>
+              <p className="sub-next-info">
+                Nächste Schulden am:{" "}
+                {new Date(sub.nextDueDate).toLocaleDateString("de-CH", {
+                  month: "long",
+                  year: "numeric",
+                  day: "2-digit",
+                })}
+              </p>
+              <p className="sub-next-info">
+                Vorschau nächste Schulden:
+                <br />
+                {sub.participants
+                  .map((p) => `• ${p.name}: ${p.share.toFixed(2)} CHF`)
+                  .join(" | ")}
               </p>
               <div className="card-buttons">
                 <button
@@ -140,26 +185,38 @@ function Dashboard() {
               <span>
                 {debt.debtor} → {debt.creditor}
               </span>
-              <span>{debt.amount.toFixed(2)} CHF</span>
-              <span>{debt.description}</span>
-              {debt.status === "open" ? (
-                <button
-                  className="btn"
-                  onClick={() =>
-                    navigate(
-                      `/dashboard/${
-                        debt.creditor === currentUser
-                          ? debt.debtor
-                          : debt.creditor
-                      }`
-                    )
-                  }
-                >
-                  Zahlung erfassen
-                </button>
-              ) : (
-                <span className="status-badge status-bezahlt">bezahlt</span>
-              )}
+              <span>
+                {(debt.amount - (debt.paidAmount || 0)).toFixed(2)} CHF
+                {debt.status === "partial" && (
+                  <span className="status-badge status-teilweise">
+                    TEILZAHLUNG
+                  </span>
+                )}
+              </span>
+              <span className="description">
+                {debt.description}
+                {!debt.isFromSubscription && " (Einmalig)"}
+              </span>
+              <span>
+                {debt.status === "open" ? (
+                  <button
+                    className="btn"
+                    onClick={() =>
+                      navigate(
+                        `/dashboard/${
+                          debt.creditor === currentUser
+                            ? debt.debtor
+                            : debt.creditor
+                        }`
+                      )
+                    }
+                  >
+                    Zahlung erfassen
+                  </button>
+                ) : (
+                  <span className="status-badge status-bezahlt">BEZAHLT</span>
+                )}
+              </span>
             </div>
           ))}
         </div>

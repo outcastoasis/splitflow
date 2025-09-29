@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Subscription = require("../models/Subscription");
+const { createMonthlyDebts } = require("../controllers/subscriptionController");
 
 // Alle Abos eines Users abrufen
 router.get("/", async (req, res) => {
@@ -18,10 +19,14 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const { name, amount, startDate, createdBy, participants } = req.body;
   try {
+    const nextDue = new Date(startDate);
+    nextDue.setMonth(nextDue.getMonth() + 1); // Erste monatliche Buchung nach 1 Monat
+
     const subscription = new Subscription({
       name,
       amount,
       startDate,
+      nextDueDate: nextDue,
       createdBy,
       participants,
     });
@@ -31,5 +36,7 @@ router.post("/", async (req, res) => {
     res.status(400).json({ error: "Fehler beim Erstellen des Abos" });
   }
 });
+
+router.post("/generate-monthly-debts", createMonthlyDebts);
 
 module.exports = router;

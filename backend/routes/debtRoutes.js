@@ -55,6 +55,12 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ error: "Alle Felder erforderlich" });
   }
 
+  if (creditor === debtor) {
+    return res
+      .status(400)
+      .json({ error: "Man kann sich selbst keine Schuld eintragen." });
+  }
+
   try {
     const newDebt = await Debt.create({
       creditor,
@@ -63,6 +69,7 @@ router.post("/", async (req, res) => {
       description,
       date,
       subscriptionId: null,
+      isFromSubscription: false, // ✅ EINMALIGE SCHULD
     });
 
     res.status(201).json(newDebt);

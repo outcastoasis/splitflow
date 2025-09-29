@@ -9,7 +9,10 @@ const Debt = require("../models/Debt");
 router.get("/", async (req, res) => {
   const user = req.query.user;
   try {
-    const subscriptions = await Subscription.find({ createdBy: user });
+    const subscriptions = await Subscription.find({
+      createdBy: user,
+      isDeleted: false,
+    });
     res.json(subscriptions);
   } catch (err) {
     res.status(500).json({ error: "Fehler beim Abrufen der Abos" });
@@ -72,12 +75,12 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
-// Abo löschen (Soft Delete)
+// Abo endgültig löschen inkl. aller Spuren
 router.delete("/:id", async (req, res) => {
   const subscriptionId = req.params.id;
 
   try {
-    // Prüfe, ob es noch offene Schulden zu diesem Abo gibt
+    // prüfe offene Schulden
     const openDebts = await Debt.find({
       subscriptionId,
       status: { $in: ["open", "partial"] },
@@ -90,18 +93,15 @@ router.delete("/:id", async (req, res) => {
       });
     }
 
-    // Soft-Delete durchführen
-    const updated = await Subscription.findByIdAndUpdate(
-      subscriptionId,
-      { isDeleted: true },
-      { new: true }
-    );
+    // alle Debts + Payments zum Abo löschen
+    await Debt.deleteMany({ subscriptionId });
+    const Payment = require("../models/Payment");
+    await Payment.deleteMany({ debtId: { $in: openDebts.map((d) => d._id) } });
 
-    res.json({
-      success: true,
-      message: "Abo wurde gelöscht (sofern vorhanden)",
-      updated,
-    });
+    // Abo selbst löschen
+    await Subscription.findByIdAndDelete(subscriptionId);
+
+    res.json({ success: true, message: "Abo und zugehörige Daten gelöscht" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Fehler beim Löschen des Abos" });

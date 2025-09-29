@@ -4,6 +4,7 @@ const router = express.Router();
 const Subscription = require("../models/Subscription");
 const { createMonthlyDebts } = require("../controllers/subscriptionController");
 const Debt = require("../models/Debt");
+const dayjs = require("dayjs");
 
 // Alle Abos eines Users abrufen
 router.get("/", async (req, res) => {
@@ -23,8 +24,8 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const { name, amount, startDate, createdBy, participants } = req.body;
   try {
-    const nextDue = new Date(startDate);
-    nextDue.setMonth(nextDue.getMonth() + 1); // Erste monatliche Buchung nach 1 Monat
+    // immer Ende nächsten Monats setzen
+    const nextDue = dayjs(startDate).add(1, "month").endOf("month").toDate();
 
     const subscription = new Subscription({
       name,

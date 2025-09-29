@@ -8,6 +8,7 @@ const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const generateDebtsRoute = require("./routes/generateDebts");
 const debtRoutes = require("./routes/debtRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const miscRoutes = require("./routes/miscRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +21,7 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/generate-debts", generateDebtsRoute);
 app.use("/api/debts", debtRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/", miscRoutes);
 
 // Beispielroute zum Testen
 app.get("/", (req, res) => {

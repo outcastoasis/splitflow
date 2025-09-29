@@ -1,9 +1,14 @@
-// controllers/subscriptionController.js
 const Subscription = require("../models/Subscription");
 const Debt = require("../models/Debt");
 const dayjs = require("dayjs");
 
 const createMonthlyDebts = async (req, res) => {
+  // 🔐 Token aus Header prüfen
+  const cronToken = req.headers["x-cron-key"]; // Header-Name frei wählbar
+  if (cronToken !== process.env.CRON_SECRET) {
+    return res.status(403).json({ error: "Zugriff verweigert" });
+  }
+
   try {
     const today = dayjs();
     const subscriptions = await Subscription.find({ isActive: true });
@@ -15,7 +20,6 @@ const createMonthlyDebts = async (req, res) => {
 
       if (due.isBefore(today, "day") || due.isSame(today, "day")) {
         for (const participant of sub.participants) {
-          // ❌ Keine Schulden an sich selbst erzeugen
           if (participant.name === sub.createdBy) continue;
 
           const existing = await Debt.findOne({
@@ -42,8 +46,8 @@ const createMonthlyDebts = async (req, res) => {
           }
         }
 
-        // nextDueDate um 1 Monat erhöhen
-        sub.nextDueDate = due.add(1, "month").toDate();
+        // nextDueDate um 1 Monat erhöhen (Monatsende)
+        sub.nextDueDate = due.add(1, "month").endOf("month").toDate();
         await sub.save();
       }
     }

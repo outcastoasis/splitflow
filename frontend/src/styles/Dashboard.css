@@ -173,3 +173,15 @@ body {
   background-color: var(--color-warning-bg);
   color: var(--color-warning);
 }
+
+/* Mobile scrollable container for debt list */
+.debt-list-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .debt-list {
+    min-width: 700px; /* genug Platz für alle Spalten */
+  }
+}

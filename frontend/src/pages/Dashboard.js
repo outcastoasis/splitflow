@@ -12,28 +12,29 @@ function Dashboard() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [recentDebts, setRecentDebts] = useState([]);
 
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [showOnlyOpen, setShowOnlyOpen] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [monthOptions, setMonthOptions] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       const resDebts = await fetch(`${API}/api/debts?user=${currentUser}`);
       const data = await resDebts.json();
 
       const grouped = {};
-
       data
         .filter((debt) => debt.status === "open")
         .forEach((debt) => {
           const other =
             debt.creditor === currentUser ? debt.debtor : debt.creditor;
-
           const amountLeft = debt.amount - (debt.paidAmount || 0);
 
           if (!grouped[other]) grouped[other] = { youGet: 0, youOwe: 0 };
 
           if (debt.creditor === currentUser) {
-            // Du bist Gläubiger
             grouped[other].youGet += amountLeft;
           } else {
-            // Du bist Schuldner
             grouped[other].youOwe += amountLeft;
           }
         });
@@ -47,7 +48,6 @@ function Dashboard() {
           youOwe: values.youOwe,
         };
       });
-
       setSummary(summaryArray);
 
       const allDebts = data
@@ -57,9 +57,15 @@ function Dashboard() {
             debt.status !== "paid"
         )
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 10);
-
+        .slice(0, 50);
       setRecentDebts(allDebts);
+
+      const months = Array.from(
+        new Set(
+          allDebts.map((debt) => new Date(debt.date).toISOString().slice(0, 7))
+        )
+      ).sort((a, b) => b.localeCompare(a));
+      setMonthOptions(months);
 
       const resSubs = await fetch(
         `${API}/api/subscriptions?user=${currentUser}`
@@ -71,33 +77,87 @@ function Dashboard() {
     fetchData();
   }, [API, currentUser]);
 
+  const filteredDebts = recentDebts.filter((debt) => {
+    if (selectedMonth) {
+      const dateString = new Date(debt.date).toISOString().slice(0, 7);
+      if (dateString !== selectedMonth) return false;
+    }
+    if (showOnlyOpen && debt.status !== "open") return false;
+    if (
+      searchText &&
+      !(
+        debt.debtor.toLowerCase().includes(searchText.toLowerCase()) ||
+        debt.creditor.toLowerCase().includes(searchText.toLowerCase()) ||
+        (debt.description &&
+          debt.description.toLowerCase().includes(searchText.toLowerCase()))
+      )
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  const filteredSummary = summary.filter((entry) =>
+    entry.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const filteredSubscriptions = subscriptions.filter(
+    (sub) =>
+      sub.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      sub.participants.some((p) =>
+        p.name.toLowerCase().includes(searchText.toLowerCase())
+      )
+  );
+
   return (
     <div className="dashboard-container">
       <section className="filters">
-        <select>
-          <option>September 2025</option>
-          <option>August 2025</option>
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+        >
+          <option value="">Alle Monate</option>
+          {monthOptions.map((m) => (
+            <option key={m} value={m}>
+              {new Date(m + "-01").toLocaleDateString("de-CH", {
+                month: "long",
+                year: "numeric",
+              })}
+            </option>
+          ))}
         </select>
+
         <label>
-          <input type="checkbox" defaultChecked /> Nur offene Schulden
+          <input
+            type="checkbox"
+            checked={showOnlyOpen}
+            onChange={(e) => setShowOnlyOpen(e.target.checked)}
+          />
+          Nur offene Schulden
         </label>
-        <input type="text" placeholder="Suche nach Name oder Abo" />
+
+        <input
+          type="text"
+          placeholder="Suche nach Name oder Abo"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
       </section>
 
       <section className="section">
         <h2 className="section-title">Teilnehmerübersicht</h2>
         <div className="cards">
-          {summary.map((entry) => (
+          {filteredSummary.map((entry) => (
             <div className="card participant-card" key={entry.name}>
               <div className="card-header">
                 <h3>{entry.name}</h3>
                 <span
                   className={`status-badge ${
                     entry.net > 0
-                      ? "status-offen" // du bekommst Geld
+                      ? "status-offen"
                       : entry.net < 0
-                      ? "status-schuldest" // du schuldest Geld
-                      : "status-bezahlt" // alles bezahlt
+                      ? "status-schuldest"
+                      : "status-bezahlt"
                   }`}
                 >
                   {entry.net > 0
@@ -132,7 +192,7 @@ function Dashboard() {
       <section className="section">
         <h2 className="section-title">Eigene Abos</h2>
         <div className="cards">
-          {subscriptions.map((sub) => (
+          {filteredSubscriptions.map((sub) => (
             <div className="card subscription-card" key={sub._id}>
               <h3>
                 {sub.name} – {sub.amount.toFixed(2)} CHF
@@ -164,12 +224,6 @@ function Dashboard() {
                 >
                   Abo bearbeiten
                 </button>
-                <button
-                  className="btn"
-                  onClick={() => navigate(`/preview-subscription/${sub._id}`)}
-                >
-                  Vorschau anzeigen
-                </button>
               </div>
             </div>
           ))}
@@ -178,47 +232,49 @@ function Dashboard() {
 
       <section className="section">
         <h2 className="section-title">Letzte Schulden</h2>
-        <div className="card debt-list">
-          {recentDebts.map((debt, idx) => (
-            <div className="entry-row" key={idx}>
-              <span>{new Date(debt.date).toLocaleDateString("de-CH")}</span>
-              <span>
-                {debt.debtor} → {debt.creditor}
-              </span>
-              <span>
-                {(debt.amount - (debt.paidAmount || 0)).toFixed(2)} CHF
-                {debt.status === "partial" && (
-                  <span className="status-badge status-teilweise">
-                    TEILZAHLUNG
-                  </span>
-                )}
-              </span>
-              <span className="description">
-                {debt.description}
-                {!debt.isFromSubscription && " (Einmalig)"}
-              </span>
-              <span>
-                {debt.status === "open" ? (
-                  <button
-                    className="btn"
-                    onClick={() =>
-                      navigate(
-                        `/dashboard/${
-                          debt.creditor === currentUser
-                            ? debt.debtor
-                            : debt.creditor
-                        }`
-                      )
-                    }
-                  >
-                    Zahlung erfassen
-                  </button>
-                ) : (
-                  <span className="status-badge status-bezahlt">BEZAHLT</span>
-                )}
-              </span>
-            </div>
-          ))}
+        <div className="debt-list-wrapper">
+          <div className="card debt-list">
+            {filteredDebts.map((debt, idx) => (
+              <div className="entry-row" key={idx}>
+                <span>{new Date(debt.date).toLocaleDateString("de-CH")}</span>
+                <span>
+                  {debt.debtor} → {debt.creditor}
+                </span>
+                <span>
+                  {(debt.amount - (debt.paidAmount || 0)).toFixed(2)} CHF
+                  {debt.status === "partial" && (
+                    <span className="status-badge status-teilweise">
+                      TEILZAHLUNG
+                    </span>
+                  )}
+                </span>
+                <span className="description">
+                  {debt.description}
+                  {!debt.isFromSubscription && " (Einmalig)"}
+                </span>
+                <span>
+                  {debt.status === "open" ? (
+                    <button
+                      className="btn"
+                      onClick={() =>
+                        navigate(
+                          `/dashboard/${
+                            debt.creditor === currentUser
+                              ? debt.debtor
+                              : debt.creditor
+                          }`
+                        )
+                      }
+                    >
+                      Zahlung erfassen
+                    </button>
+                  ) : (
+                    <span className="status-badge status-bezahlt">BEZAHLT</span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

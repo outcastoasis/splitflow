@@ -18,6 +18,17 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const { name, createdBy } = req.body;
   try {
+    // Prüfen ob schon vorhanden (Case-insensitive)
+    const exists = await Participant.findOne({
+      createdBy,
+      name: { $regex: new RegExp("^" + name + "$", "i") },
+    });
+    if (exists) {
+      return res
+        .status(400)
+        .json({ error: "Ein Teilnehmer mit diesem Namen existiert bereits." });
+    }
+
     const newParticipant = new Participant({ name, createdBy });
     const saved = await newParticipant.save();
     res.status(201).json(saved);
@@ -33,6 +44,52 @@ router.delete("/:id", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Teilnehmer konnte nicht gelöscht werden" });
+  }
+});
+
+// PUT: Teilnehmernamen ändern + überall übernehmen
+router.put("/:id", async (req, res) => {
+  const { newName } = req.body;
+  try {
+    const participant = await Participant.findById(req.params.id);
+    if (!participant) {
+      return res.status(404).json({ error: "Teilnehmer nicht gefunden" });
+    }
+
+    // Prüfen ob neuer Name schon existiert (außer man selbst)
+    const exists = await Participant.findOne({
+      createdBy: participant.createdBy,
+      _id: { $ne: participant._id },
+      name: { $regex: new RegExp("^" + newName + "$", "i") },
+    });
+    if (exists) {
+      return res
+        .status(400)
+        .json({ error: "Ein Teilnehmer mit diesem Namen existiert bereits." });
+    }
+
+    const oldName = participant.name;
+    participant.name = newName;
+    await participant.save();
+
+    const Debt = require("../models/Debt");
+    await Debt.updateMany(
+      { creditor: oldName },
+      { $set: { creditor: newName } }
+    );
+    await Debt.updateMany({ debtor: oldName }, { $set: { debtor: newName } });
+
+    const Subscription = require("../models/Subscription");
+    await Subscription.updateMany(
+      { "participants.name": oldName },
+      { $set: { "participants.$[elem].name": newName } },
+      { arrayFilters: [{ "elem.name": oldName }] }
+    );
+
+    res.json({ success: true, message: "Teilnehmername aktualisiert" });
+  } catch (err) {
+    console.error("Fehler beim Aktualisieren:", err);
+    res.status(500).json({ error: "Fehler beim Aktualisieren des Namens" });
   }
 });
 

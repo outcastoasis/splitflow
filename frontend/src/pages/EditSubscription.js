@@ -103,7 +103,15 @@ function EditSubscription() {
 
   return (
     <div className="edit-subscription-container">
-      <h2>Abo bearbeiten</h2>
+      <div className="edit-subscription-header">
+        <h2>Abo bearbeiten</h2>
+        <button
+          className="edit-subscription-back-btn"
+          onClick={() => navigate(`/subscription/${id}`)}
+        >
+          Zurück
+        </button>
+      </div>
 
       {error && <p className="edit-subscription-error">{error}</p>}
 

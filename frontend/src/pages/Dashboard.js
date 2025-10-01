@@ -148,7 +148,11 @@ function Dashboard() {
         <h2 className="section-title">Teilnehmerübersicht</h2>
         <div className="cards">
           {filteredSummary.map((entry) => (
-            <div className="card participant-card" key={entry.name}>
+            <div
+              className="card participant-card clickable-card"
+              key={entry.name}
+              onClick={() => navigate(`/dashboard/${entry.name}`)}
+            >
               <div className="card-header">
                 <h3>{entry.name}</h3>
                 <span
@@ -167,22 +171,18 @@ function Dashboard() {
                     : "bezahlt"}
                 </span>
               </div>
-              <div className="card-body">
-                <p>
+              <div className="amount-display">
+                <span
+                  className={`amount ${
+                    entry.net > 0 ? "positive" : entry.net < 0 ? "negative" : ""
+                  }`}
+                >
                   {entry.net > 0
-                    ? `Du bekommst ${entry.net.toFixed(2)} CHF`
+                    ? `+${entry.net.toFixed(2)} CHF`
                     : entry.net < 0
-                    ? `Du schuldest ${Math.abs(entry.net).toFixed(2)} CHF`
-                    : "Alles bezahlt"}
-                </p>
-                <div className="card-buttons">
-                  <button
-                    className="btn"
-                    onClick={() => navigate(`/dashboard/${entry.name}`)}
-                  >
-                    Details anzeigen
-                  </button>
-                </div>
+                    ? `-${Math.abs(entry.net).toFixed(2)} CHF`
+                    : "0.00 CHF"}
+                </span>
               </div>
             </div>
           ))}
@@ -193,37 +193,34 @@ function Dashboard() {
         <h2 className="section-title">Eigene Abos</h2>
         <div className="cards">
           {filteredSubscriptions.map((sub) => (
-            <div className="card subscription-card" key={sub._id}>
-              <h3>
-                {sub.name} – {sub.amount.toFixed(2)} CHF
-              </h3>
-              <p className="sub-list">
-                {sub.participants
-                  .map((p) => `${p.name} (${p.share.toFixed(2)} CHF)`)
-                  .join(", ")}
-              </p>
-              <p className="sub-next-info">
-                Nächste Schulden am:{" "}
-                {new Date(sub.nextDueDate).toLocaleDateString("de-CH", {
-                  month: "long",
-                  year: "numeric",
-                  day: "2-digit",
-                })}
-              </p>
-              <p className="sub-next-info">
-                Vorschau nächste Schulden:
+            <div
+              className="card subscription-card clickable-card"
+              key={sub._id}
+              onClick={() => navigate(`/subscription/${sub._id}`)}
+            >
+              <div className="card-header">
+                <h3>{sub.name}</h3>
+                {sub.isPaused ? (
+                  <span className="status-badge status-warning">PAUSIERT</span>
+                ) : (
+                  <span className="status-badge status-active">AKTIV</span>
+                )}
+              </div>
+
+              <p className="sub-meta">
+                <span>{sub.participants.length} Teilnehmer</span>
                 <br />
-                {sub.participants
-                  .map((p) => `• ${p.name}: ${p.share.toFixed(2)} CHF`)
-                  .join(" | ")}
+                <span>
+                  Nächste Schulden:{" "}
+                  {new Date(sub.nextDueDate).toLocaleDateString("de-CH", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
               </p>
-              <div className="card-buttons">
-                <button
-                  className="btn"
-                  onClick={() => navigate(`/edit-subscription/${sub._id}`)}
-                >
-                  Abo bearbeiten
-                </button>
+              <div className="amount-display sub-amount-display">
+                {sub.amount.toFixed(2)} CHF
               </div>
             </div>
           ))}

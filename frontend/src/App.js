@@ -7,6 +7,7 @@ import Add from "./pages/Add";
 import Navbar from "./components/Navbar";
 import PersonDetails from "./pages/PersonDetails";
 import EditSubscription from "./pages/EditSubscription";
+import SubscriptionDetails from "./pages/SubscriptionDetails";
 
 import "./styles/App.css";
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/add" element={<Add />} />
           <Route path="/dashboard/:name" element={<PersonDetails />} />
           <Route path="/edit-subscription/:id" element={<EditSubscription />} />
+          <Route path="/subscription/:id" element={<SubscriptionDetails />} />
         </Routes>
       </div>
     </Router>

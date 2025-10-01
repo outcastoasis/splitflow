@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-// Einfacher Ping-/Healthcheck
+// Minimaler Healthcheck für cron-job.org
 router.get("/ping", (req, res) => {
-  res.status(200).json({ message: "pong" });
+  res.status(200).send("pong");
 });
 
 module.exports = router;

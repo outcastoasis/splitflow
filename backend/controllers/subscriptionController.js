@@ -61,7 +61,6 @@ const createMonthlyDebts = async (req, res) => {
 
     res.json({
       message: `Neue Schulden erstellt: ${createdDebts.length}`,
-      entries: createdDebts,
     });
   } catch (err) {
     console.error("Fehler bei der Abo-Schulden-Erstellung:", err);

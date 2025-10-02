@@ -11,6 +11,7 @@ function PersonDetails() {
   const [debts, setDebts] = useState([]);
   const [paymentInputs, setPaymentInputs] = useState({});
   const [aboAmountToPay, setAboAmountToPay] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const fetchDebts = useCallback(async () => {
     const res = await fetch(`${API}/api/debts?user=${currentUser}`);
@@ -86,6 +87,7 @@ function PersonDetails() {
     }
   };
 
+  // Saldo berechnen
   const total = debts.reduce((sum, d) => {
     const val = d.amount - (d.paidAmount || 0);
     if (d.status === "paid") return sum;
@@ -116,98 +118,182 @@ function PersonDetails() {
     return sum + (d.amount - (d.paidAmount || 0));
   }, 0);
 
+  // einzelne Schuldenzeilen modern rendern
   const renderDebtRow = (debt) => {
     const rest = (debt.amount - (debt.paidAmount || 0)).toFixed(2);
     const isIncoming = debt.creditor === currentUser;
-    const arrow = isIncoming ? "➜" : "⬅";
 
     return (
       <div
         key={debt._id}
-        className={`person-row ${isIncoming ? "incoming" : "outgoing"}`}
+        className={`debt-card ${isIncoming ? "positive" : "negative"}`}
       >
-        <div className="person-label">
-          <span
-            className={`arrow-icon ${isIncoming ? "arrow-in" : "arrow-out"}`}
+        <div className="debt-row">
+          <div
+            className={`debt-amount-large ${
+              isIncoming ? "positive" : "negative"
+            }`}
           >
-            {arrow}
-          </span>
-          {isIncoming ? "Du bekommst" : "Du schuldest"} {debt.amount.toFixed(2)}{" "}
-          CHF
-        </div>
-
-        <div className="person-description">
-          Beschreibung: <strong>{debt.description}</strong>
-        </div>
-
-        {debt.status !== "paid" ? (
-          <>
-            <div className="person-open">
-              Noch offen: <strong>{rest} CHF</strong>
-            </div>
-            <div className="person-payment-form">
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Betrag"
-                value={paymentInputs[debt._id] || ""}
-                onChange={(e) => handlePaymentChange(debt._id, e.target.value)}
-              />
-              <button onClick={() => handleAddPayment(debt)}>
-                Zahlung erfassen
-              </button>
-            </div>
-          </>
-        ) : (
-          <span className="person-status-badge">bezahlt</span>
-        )}
-
-        {debt.payments && debt.payments.length > 0 && (
-          <div className="person-payment-history">
-            <strong>Historie:</strong>
-            <ul>
-              {debt.payments.map((p, i) => (
-                <li key={i}>
-                  {new Date(p.date).toLocaleDateString("de-CH")} –{" "}
-                  {p.amount.toFixed(2)} CHF
-                </li>
-              ))}
-            </ul>
+            {debt.amount.toFixed(2)} CHF
           </div>
-        )}
+
+          <div className="debt-description">
+            <span>Beschreibung:</span> <strong>{debt.description}</strong>
+          </div>
+
+          {debt.status !== "paid" ? (
+            <>
+              <div className="debt-rest">
+                Noch offen: <strong>{rest} CHF</strong>
+              </div>
+              <div className="payment-input">
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Betrag"
+                  value={paymentInputs[debt._id] || ""}
+                  onChange={(e) =>
+                    handlePaymentChange(debt._id, e.target.value)
+                  }
+                />
+                <button onClick={() => handleAddPayment(debt)}>Zahlen</button>
+              </div>
+            </>
+          ) : (
+            <span className="debt-paid">Bezahlt</span>
+          )}
+
+          {debt.payments && debt.payments.length > 0 && (
+            <div className="history">
+              <strong>Historie:</strong>
+              <ul>
+                {debt.payments.map((p, i) => (
+                  <li key={i}>
+                    {new Date(p.date).toLocaleDateString("de-CH")} –{" "}
+                    {p.amount.toFixed(2)} CHF
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
 
+  const handleCopySummary = () => {
+    const now = new Date().toLocaleDateString("de-CH");
+    const openDebts = debts.filter((d) => d.status !== "paid");
+    const youOwe = openDebts.filter((d) => d.creditor === name);
+    const theyOwe = openDebts.filter((d) => d.debtor === name);
+
+    const lines = [];
+    lines.push(`Schuldenübersicht mit ${name}`);
+    lines.push(`Stand: ${now}\n`);
+
+    if (youOwe.length > 0) {
+      lines.push("Jascha schuldet dir:");
+      youOwe.forEach((d) => {
+        const rest = (d.amount - (d.paidAmount || 0)).toFixed(2);
+        lines.push(
+          `- ${rest} CHF für "${d.description}" (${new Date(
+            d.date
+          ).toLocaleDateString("de-CH")})`
+        );
+      });
+      lines.push("");
+    }
+
+    if (theyOwe.length > 0) {
+      lines.push("Du schuldest Jascha:");
+      theyOwe.forEach((d) => {
+        const rest = (d.amount - (d.paidAmount || 0)).toFixed(2);
+        lines.push(
+          `- ${rest} CHF für "${d.description}" (${new Date(
+            d.date
+          ).toLocaleDateString("de-CH")})`
+        );
+      });
+      lines.push("");
+    }
+
+    const saldoText =
+      total === 0
+        ? "Saldo: Ausgeglichen"
+        : `Saldo: ${total >= 0 ? "+" : "-"}${Math.abs(total).toFixed(2)} CHF`;
+    lines.push(saldoText);
+
+    navigator.clipboard.writeText(lines.join("\n"));
+
+    // Setze Bestätigungsanzeige
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500); // nach 2.5 Sekunden ausblenden
+  };
+
   return (
     <div className="person-details-container">
-      <div className="person-header">
-        <h2>Details zu {name}</h2>
-        <button onClick={() => navigate("/")}>← Zurück</button>
+      <div className="details-header">
+        <h2>{name}</h2>
+        {copied && <div className="copy-toast">✔ Kopiert</div>}
+        <div className="details-buttons">
+          <button
+            className="action-button copy-button"
+            onClick={handleCopySummary}
+            title="Übersicht kopieren"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              width="20"
+              height="20"
+            >
+              <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 18H8V7h11v16z" />
+            </svg>
+          </button>
+          <button
+            className="action-button back-button"
+            onClick={() => navigate("/")}
+            title="Zurück"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              width="20"
+              height="20"
+            >
+              <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <p>
-        <strong>Saldo:</strong> {total.toFixed(2)} CHF
-      </p>
+      <div className={`saldo-display ${total < 0 ? "negative" : "positive"}`}>
+        {total >= 0 ? "+" : "-"}
+        {Math.abs(total).toFixed(2)} CHF
+      </div>
 
-      {debts.length === 0 && <p>Keine Einträge gefunden.</p>}
+      {debts.length === 0 && (
+        <p className="no-entries">Keine Einträge gefunden.</p>
+      )}
 
-      <div className="person-section">
-        {/* EINMALIGE SCHULDEN */}
-        <h3 className="person-section-heading">Einmalige Schulden</h3>
-        {oneTimeDebts.length === 0 && <p>Keine einmaligen Schulden.</p>}
-        {oneTimeDebts.map((debt) => renderDebtRow(debt))}
+      <h3 className="section-heading">Einmalige Schulden</h3>
+      {oneTimeDebts.length === 0 ? (
+        <p className="no-entries">Keine einmaligen Schulden.</p>
+      ) : (
+        oneTimeDebts.map((debt) => renderDebtRow(debt))
+      )}
 
-        {/* ABO-SCHULDEN */}
-        <h3 className="person-section-heading">Abo-Schulden</h3>
-
-        {totalAboDebt > 0 && (
-          <div className="abo-payment-block">
-            <p>
+      <h3 className="section-heading">Abo-Schulden</h3>
+      {totalAboDebt > 0 && (
+        <div className="debt-card positive">
+          <div className="debt-row">
+            <div>
               <strong>Offene Abo-Schulden:</strong> {totalAboDebt.toFixed(2)}{" "}
               CHF
-            </p>
-            <div className="person-payment-form">
+            </div>
+            <div className="payment-input">
               <input
                 type="number"
                 step="0.01"
@@ -215,16 +301,16 @@ function PersonDetails() {
                 value={aboAmountToPay}
                 onChange={(e) => setAboAmountToPay(e.target.value)}
               />
-              <button onClick={handlePayAboDebts}>
-                Abo-Schulden begleichen
-              </button>
+              <button onClick={handlePayAboDebts}>Zahlen</button>
             </div>
           </div>
-        )}
-
-        {subscriptionDebts.length === 0 && <p>Keine Abo-Schulden.</p>}
-        {subscriptionDebts.map((debt) => renderDebtRow(debt))}
-      </div>
+        </div>
+      )}
+      {subscriptionDebts.length === 0 ? (
+        <p className="no-entries">Keine Abo-Schulden.</p>
+      ) : (
+        subscriptionDebts.map((debt) => renderDebtRow(debt))
+      )}
     </div>
   );
 }

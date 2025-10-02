@@ -1,3 +1,4 @@
+/* styles/variables.css */
 :root {
   --font-base: "Inter", sans-serif;
 
@@ -6,7 +7,7 @@
   --color-surface: #1e2933; /* Karten / Sektionen etwas heller */
   --color-text: #e9f1f7; /* Standard-Text sehr hell */
   --color-heading: #ffffff; /* Überschriften weiß */
-  --color-muted: #cbd5e1; /* Sekundärer Text */
+  --color-muted: #a7afb9; /* Sekundärer Text */
 
   --color-primary: #2274a5; /* Blau für Buttons etc. */
   --color-primary-dark: #1a5b82;
@@ -18,6 +19,10 @@
 
   --color-error: #f87171;
   --color-error-bg: #2f1c1c;
+
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(255, 0, 0, 0.1);
+  --color-danger-bg-hover: rgba(255, 0, 0, 0.1);
 
   --color-warning: #fbbf24; /* helles Orange */
   --color-warning-bg: #332a12; /* dunkler Hintergrund */
@@ -35,6 +40,9 @@
   --input-border: var(--color-border);
   --input-text: var(--color-text);
   --input-placeholder: #94a3b8;
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-input-text: var(--input-text);
 
   /* Badges */
   --badge-success-bg: var(--color-success);
@@ -47,8 +55,11 @@
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-xxs: 0.125rem;
 
   /* Border Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
+  --radius-lg: 14px;
 }

@@ -1,101 +1,130 @@
-@import url("./variables.css");
-
 .subscription-details-container {
-  max-width: 600px;
-  margin: var(--space-md) auto;
   padding: var(--space-md);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-base);
   color: var(--color-text);
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.subscription-details-heading {
-  font-size: 1.8rem;
-  color: var(--color-heading);
-  margin-bottom: var(--space-md);
-  border-left: 4px solid var(--color-primary);
-  padding-left: var(--space-sm);
-}
-
-.subscription-details-amount,
-.subscription-details-next-due {
-  font-size: 1rem;
-  margin-bottom: var(--space-sm);
+.loading-text {
+  font-style: italic;
   color: var(--color-muted);
+  text-align: center;
 }
 
-.subscription-details-subheading {
-  font-size: 1.3rem;
-  color: var(--color-heading);
-  margin-top: var(--space-lg);
-  margin-bottom: var(--space-sm);
-}
-
-.subscription-participant-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.subscription-participant-item {
+.subscription-header {
   display: flex;
   justify-content: space-between;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid var(--color-border);
-  font-size: 0.95rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-sm);
 }
 
-.participant-name {
-  font-weight: 500;
-  color: var(--color-text);
+.subscription-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: var(--space-sm);
+}
+
+.subscription-amount {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-xs);
+}
+
+.subscription-next-date {
+  font-size: 1rem;
+  color: var(--color-muted);
+  margin-bottom: var(--space-md);
+}
+
+.subscription-section-title {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-sm);
+  color: var(--color-muted);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-xs);
+}
+
+.participant-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-md) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm);
+  font-size: 1rem;
 }
 
 .participant-share {
-  color: var(--color-muted);
+  font-weight: bold;
 }
 
-.subscription-button-group {
-  margin-top: var(--space-lg);
+.subscription-buttons {
   display: flex;
   gap: var(--space-sm);
 }
 
-.subscription-button {
-  padding: 0.6rem 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+.action-button {
+  background: var(--button-bg);
   border: none;
   border-radius: var(--radius-sm);
-  background-color: var(--color-primary);
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   color: var(--button-text);
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
+  padding: 0;
 }
 
-.subscription-button:hover {
-  background-color: var(--color-primary-dark);
+.action-button:hover {
+  background: var(--button-bg-hover);
+  transform: translateY(-1px);
 }
 
-.subscription-button.secondary {
-  background-color: var(--color-accent);
+.action-button:active {
+  transform: translateY(0);
 }
 
-.subscription-button.secondary:hover {
-  background-color: var(--color-accent-dark);
+.edit-button {
+  background: var(--color-primary);
 }
 
-.loading-message {
-  text-align: center;
-  font-size: 1rem;
-  color: var(--color-muted);
-  padding: var(--space-md);
+.edit-button:hover {
+  background: var(--color-primary-dark);
 }
 
-.clickable-card {
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.back-button {
+  background: var(--color-accent);
 }
 
-.clickable-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.back-button:hover {
+  background: var(--color-accent-dark);
+}
+
+@media (max-width: 600px) {
+  .subscription-name {
+    font-size: 1.5rem;
+  }
+
+  .participant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .action-button {
+    width: 48px;
+    height: 48px;
+  }
 }

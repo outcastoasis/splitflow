@@ -17,10 +17,12 @@ function EditSubscription() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Subscription laden
       const res = await fetch(`${API}/api/subscriptions/${id}`);
       const data = await res.json();
       setSubscription(data);
 
+      // Prüfen, ob offene Schulden existieren
       const resDebts = await fetch(`${API}/api/debts?subscriptionId=${id}`);
       const debts = await resDebts.json();
       const hasOpen = debts.some(
@@ -28,6 +30,7 @@ function EditSubscription() {
       );
       setCanDelete(!hasOpen);
 
+      // Teilnehmer laden
       const resParts = await fetch(
         `${API}/api/participants?user=${currentUser}`
       );
@@ -88,7 +91,7 @@ function EditSubscription() {
     }
   };
 
-  if (!subscription) return <p>Lade Abo...</p>;
+  if (!subscription) return <p className="edit-loading-text">Lade Abo...</p>;
 
   const totalShare = subscription.participants.reduce(
     (sum, p) => sum + p.share,
@@ -103,19 +106,30 @@ function EditSubscription() {
 
   return (
     <div className="edit-subscription-container">
+      {/* Header */}
       <div className="edit-subscription-header">
-        <h2>Abo bearbeiten</h2>
+        <h2 className="edit-subscription-title">Abo bearbeiten</h2>
         <button
-          className="edit-subscription-back-btn"
+          className="edit-back-button"
           onClick={() => navigate(`/subscription/${id}`)}
+          title="Zurück"
         >
-          Zurück
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+          >
+            <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+          </svg>
         </button>
       </div>
 
-      {error && <p className="edit-subscription-error">{error}</p>}
+      {error && <p className="edit-error-message">{error}</p>}
 
-      <div className="edit-subscription-form-group">
+      {/* Name */}
+      <div className="edit-form-group">
         <label>Name</label>
         <input
           type="text"
@@ -126,7 +140,8 @@ function EditSubscription() {
         />
       </div>
 
-      <div className="edit-subscription-form-group">
+      {/* Betrag */}
+      <div className="edit-form-group">
         <label>Betrag</label>
         <input
           type="number"
@@ -140,7 +155,8 @@ function EditSubscription() {
         />
       </div>
 
-      <div className="edit-subscription-form-group">
+      {/* Startdatum */}
+      <div className="edit-form-group">
         <label>Startdatum</label>
         <input
           type="date"
@@ -151,7 +167,8 @@ function EditSubscription() {
         />
       </div>
 
-      <div className="edit-subscription-checkbox">
+      {/* Pause Checkbox */}
+      <div className="edit-form-group checkbox">
         <input
           id="pause-checkbox"
           type="checkbox"
@@ -165,44 +182,59 @@ function EditSubscription() {
         </label>
       </div>
 
-      <div className="edit-subscription-participants">
+      {/* Teilnehmer */}
+      <div className="edit-participants-section">
         <h3>Teilnehmer</h3>
         <p>
-          Gesamt-Anteile: {totalShare.toFixed(2)} CHF{" "}
+          Anteile gesamt: {totalShare.toFixed(2)} CHF
           {!sharesMatch && (
-            <span className="edit-subscription-warning">
-              (≠ Abo-Betrag von {subscription.amount.toFixed(2)} CHF)
-            </span>
+            <>
+              {" "}
+              &nbsp;
+              <span className="edit-warning-note">
+                ≠ {subscription.amount.toFixed(2)} CHF
+              </span>
+            </>
           )}
         </p>
 
         {subscription.participants.map((p, idx) => (
-          <div className="edit-subscription-participant" key={idx}>
-            <input type="text" value={p.name} readOnly disabled />
-            <input
-              type="number"
-              value={p.share}
-              onChange={(e) => {
-                const updated = [...subscription.participants];
-                updated[idx].share = parseFloat(e.target.value);
-                setSubscription({ ...subscription, participants: updated });
-              }}
-            />
+          <div className="edit-participant-card" key={idx}>
+            <div className="edit-participant-info">
+              <input
+                type="text"
+                value={p.name}
+                readOnly
+                disabled
+                className="edit-name-input"
+              />
+              <input
+                type="number"
+                value={p.share}
+                onChange={(e) => {
+                  const updated = [...subscription.participants];
+                  updated[idx].share = parseFloat(e.target.value);
+                  setSubscription({ ...subscription, participants: updated });
+                }}
+                className="edit-share-input"
+              />
+            </div>
             <button
+              className="edit-remove-button"
               onClick={() => {
                 const updated = [...subscription.participants];
                 updated.splice(idx, 1);
                 setSubscription({ ...subscription, participants: updated });
               }}
             >
-              Entfernen
+              ✕
             </button>
           </div>
         ))}
 
         {availableOptions.length > 0 && (
           <select
-            className="edit-subscription-dropdown"
+            className="edit-select-add"
             onChange={(e) => {
               const selected = e.target.value;
               if (!selected) return;
@@ -226,12 +258,13 @@ function EditSubscription() {
         )}
       </div>
 
-      <div className="edit-subscription-button-group">
+      {/* Buttons */}
+      <div className="edit-action-buttons">
         <button onClick={handleSave} disabled={isSaving}>
           Speichern
         </button>
         {canDelete && (
-          <button className="edit-subscription-delete" onClick={handleDelete}>
+          <button className="danger-button" onClick={handleDelete}>
             Abo löschen
           </button>
         )}

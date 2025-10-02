@@ -113,30 +113,6 @@ function Dashboard() {
   return (
     <div className="dashboard-container">
       <section className="filters">
-        <select
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-        >
-          <option value="">Alle Monate</option>
-          {monthOptions.map((m) => (
-            <option key={m} value={m}>
-              {new Date(m + "-01").toLocaleDateString("de-CH", {
-                month: "long",
-                year: "numeric",
-              })}
-            </option>
-          ))}
-        </select>
-
-        <label>
-          <input
-            type="checkbox"
-            checked={showOnlyOpen}
-            onChange={(e) => setShowOnlyOpen(e.target.checked)}
-          />
-          Nur offene Schulden
-        </label>
-
         <input
           type="text"
           placeholder="Suche nach Name oder Abo"

@@ -1,0 +1,61 @@
+.chart-summary-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+  color: #e5e7eb; /* Tailwind: text-gray-200 */
+  background: transparent;
+}
+
+.chart-summary-container h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-left: 4px solid #3b82f6; /* Tailwind: blue-500 */
+  padding-left: 0.5rem;
+  align-self: flex-start;
+  margin-bottom: 1rem;
+  color: #e5e7eb;
+}
+
+.saldo-label {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.3rem;
+  font-weight: 600;
+  pointer-events: none;
+  text-align: center;
+  color: #e5e7eb;
+}
+
+.saldo-positive {
+  color: #22c55e; /* Tailwind: green-500 */
+}
+
+.saldo-negative {
+  color: #ef4444; /* Tailwind: red-500 */
+}
+
+.basic-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}

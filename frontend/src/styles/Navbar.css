@@ -95,13 +95,18 @@
     flex-direction: column;
     background: white;
     border-top: 1px solid #ddd;
-    display: none;
-    padding: 1rem;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    padding: 0 1rem;
     z-index: 999;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
   }
 
   .navbar-links.open {
-    display: flex;
+    max-height: 300px; /* ausreichend Platz für 3 Links */
+    opacity: 1;
+    padding: 1rem;
   }
 
   .navbar-links li {

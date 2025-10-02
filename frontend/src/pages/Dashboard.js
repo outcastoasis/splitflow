@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
+import ChartSummary from "../components/ChartSummary";
 
 function Dashboard() {
   const currentUser = "Jascha";
@@ -141,6 +142,13 @@ function Dashboard() {
           placeholder="Suche nach Name oder Abo"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+        />
+      </section>
+
+      <section className="section">
+        <ChartSummary
+          youOwe={summary.reduce((sum, e) => sum + e.youOwe, 0)}
+          youGet={summary.reduce((sum, e) => sum + e.youGet, 0)}
         />
       </section>
 

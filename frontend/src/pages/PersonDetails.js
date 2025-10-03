@@ -234,7 +234,7 @@ function PersonDetails() {
   return (
     <div className="person-details-container">
       <div className="details-header">
-        <h2>{name}</h2>
+        <h2 className="no-autolink">{name}</h2>
         {copied && <div className="copy-toast">✔ Kopiert</div>}
         <div className="details-buttons">
           <button

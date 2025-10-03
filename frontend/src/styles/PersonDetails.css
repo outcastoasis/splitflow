@@ -276,3 +276,12 @@
 .debt-amount-large.negative {
   color: var(--color-error);
 }
+
+.no-autolink {
+  -webkit-touch-callout: none; /* Kein Kontextmenü auf iOS */
+  -webkit-user-select: none; /* Keine Textauswahl (iOS/Android) */
+  user-select: none; /* Keine Textauswahl (Desktop) */
+  pointer-events: none; /* Keine Interaktion möglich */
+  text-decoration: none; /* Keine Unterstreichung durch Chrome */
+  color: inherit; /* Keine automatische Farbänderung */
+}

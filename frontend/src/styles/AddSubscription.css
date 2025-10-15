@@ -1,3 +1,5 @@
+@import url("./variables.css");
+
 .add-subscription-container {
   padding: var(--space-md);
   font-family: var(--font-base);

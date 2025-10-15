@@ -1,0 +1,125 @@
+@import url("./variables.css");
+
+.edit-debt-container {
+  padding: var(--space-md);
+  font-family: var(--font-base);
+  color: var(--color-text);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.edit-debt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.edit-debt-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.edit-debt-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.edit-debt-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.edit-debt-group label {
+  font-weight: bold;
+}
+
+.edit-debt-group input {
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.9rem;
+  font-size: 1rem;
+  color: var(--color-text);
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.edit-debt-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(34, 116, 165, 0.3);
+}
+
+.edit-debt-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.edit-debt-actions button {
+  flex: 1;
+  padding: 0.7rem 1.6rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.edit-debt-save {
+  background: var(--color-primary);
+  color: var(--button-text);
+}
+
+.edit-debt-save:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.edit-debt-cancel {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.edit-debt-cancel:hover {
+  background: var(--color-muted);
+  transform: translateY(-1px);
+}
+
+.edit-debt-delete {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.edit-debt-delete:hover {
+  background: var(--color-danger-bg-hover);
+  transform: translateY(-1px);
+}
+
+.edit-debt-loading,
+.edit-debt-error {
+  text-align: center;
+  color: var(--color-muted);
+  margin-top: var(--space-lg);
+}
+
+@media (max-width: 600px) {
+  .edit-debt-title {
+    font-size: 1.3rem;
+  }
+
+  .edit-debt-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .edit-debt-actions button {
+    flex: 1 1 auto;
+    min-width: 30%;
+  }
+}

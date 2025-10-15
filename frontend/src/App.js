@@ -11,6 +11,7 @@ import AddExpense from "./pages/AddExpense";
 import AddDebt from "./pages/AddDebt";
 import AddSubscription from "./pages/AddSubscription";
 import QuickAddMenu from "./components/QuickAddMenu";
+import EditDebt from "./pages/EditDebt";
 
 import "./styles/App.css";
 
@@ -28,6 +29,7 @@ function App() {
           <Route path="/add-expense" element={<AddExpense />} />
           <Route path="/add-debt" element={<AddDebt />} />
           <Route path="/add-subscription" element={<AddSubscription />} />
+          <Route path="/edit-debt/:id" element={<EditDebt />} />
         </Routes>
         <QuickAddMenu />
       </div>

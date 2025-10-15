@@ -1,7 +1,8 @@
 // src/pages/PersonDetails.js
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import "../styles/PersonDetails.css";
+import { FiEdit } from "react-icons/fi";
 
 function PersonDetails() {
   const currentUser = "Jascha";
@@ -130,12 +131,22 @@ function PersonDetails() {
         className={`debt-card ${isIncoming ? "positive" : "negative"}`}
       >
         <div className="debt-row">
-          <div
-            className={`debt-amount-large ${
-              isIncoming ? "positive" : "negative"
-            }`}
-          >
-            {debt.amount.toFixed(2)} CHF
+          <div className="debt-header">
+            <div
+              className={`debt-amount-large ${
+                isIncoming ? "positive" : "negative"
+              }`}
+            >
+              {debt.amount.toFixed(2)} CHF
+            </div>
+
+            {!debt.isFromSubscription && (
+              <div className="debt-edit-icon">
+                <Link to={`/edit-debt/${debt._id}`} title="Bearbeiten">
+                  <FiEdit />
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="debt-description">

@@ -78,4 +78,46 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.patch("/:id", async (req, res) => {
+  try {
+    const { amount, description, date, creditor, debtor } = req.body;
+    const updated = await Debt.findByIdAndUpdate(
+      req.params.id,
+      { amount, description, date, creditor, debtor },
+      { new: true }
+    );
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fehler beim Aktualisieren der Schuld" });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const debt = await Debt.findById(req.params.id);
+    res.json(debt);
+  } catch (err) {
+    res.status(404).json({ error: "Schuld nicht gefunden" });
+  }
+});
+
+// DELETE /api/debts/:id
+router.delete("/:id", async (req, res) => {
+  try {
+    const deleted = await Debt.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Schuld nicht gefunden" });
+    }
+
+    // Optional: Auch zugehörige Payments löschen
+    await Payment.deleteMany({ debtId: req.params.id });
+
+    res.json({ message: "Schuld erfolgreich gelöscht" });
+  } catch (err) {
+    console.error("Fehler beim Löschen der Schuld:", err);
+    res.status(500).json({ error: "Fehler beim Löschen der Schuld" });
+  }
+});
+
 module.exports = router;

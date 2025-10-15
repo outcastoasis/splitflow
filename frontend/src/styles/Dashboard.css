@@ -201,7 +201,6 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   min-width: 220px;
-  max-width: 300px;
   user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Einmalschuld erfassen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e293b;
+      color: #f1f5f9;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #334155;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    h2, h3 {
+      color: #f8fafc;
+      margin-bottom: 0.5rem;
+    }
+
+    .mode-section {
+      border: 1px solid #475569;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      background: #1e293b;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+    }
+
+    select, input[type="number"], input[type="text"], input[type="date"] {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: none;
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+
+    .participant-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .participant-row input {
+      flex: 1;
+    }
+
+    .remove-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+    }
+
+    .add-btn, .submit-btn {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .add-btn {
+      background: #4b5563;
+      color: #f9fafb;
+    }
+
+    .add-btn:hover {
+      background: #6b7280;
+    }
+
+    .submit-btn {
+      background: #10b981;
+      color: white;
+    }
+
+    .submit-btn:hover {
+      background: #059669;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #475569;
+      margin: 2rem 0 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Einmalige Schuld erfassen</h2>
+
+  <!-- Modus A -->
+  <div class="mode-section">
+    <h3>🅰️ Ich schulde jemandem</h3>
+    <label>Wem schulde ich?</label>
+    <select id="creditorSelect">
+      <option value="">-- Person wählen --</option>
+      <option value="Anna">Anna</option>
+      <option value="Ben">Ben</option>
+      <option value="Clara">Clara</option>
+    </select>
+
+    <label>Betrag (CHF):</label>
+    <input type="number" id="iOweAmount" step="0.01" />
+
+    <label>Wofür?</label>
+    <input type="text" id="iOweDescription" />
+
+    <label>Wann?</label>
+    <input type="date" id="iOweDate" />
+
+    <button class="submit-btn" onclick="submitIOwe()">✅ Schuld erfassen</button>
+  </div>
+
+  <!-- Modus B -->
+  <div class="mode-section">
+    <h3>🅱️ Eine oder mehrere Personen schulden mir</h3>
+    <div id="participantList"></div>
+
+    <button class="add-btn" onclick="addParticipant()">+ Teilnehmer hinzufügen</button>
+
+    <label>Gesamtbetrag (CHF):</label>
+    <input type="number" id="totalAmount" step="0.01" oninput="autoDistribute()" />
+
+    <label>Wofür?</label>
+    <input type="text" id="description" />
+
+    <label>Wann?</label>
+    <input type="date" id="date" />
+
+    <button class="submit-btn" onclick="submitTheyOwe()">✅ Schulden aufteilen</button>
+  </div>
+</div>
+
+<script>
+  function addParticipant() {
+    const list = document.getElementById("participantList");
+
+    const row = document.createElement("div");
+    row.className = "participant-row";
+
+    const select = document.createElement("select");
+    select.innerHTML = `
+      <option value="">-- Person wählen --</option>
+      <option value="Anna">Anna</option>
+      <option value="Ben">Ben</option>
+      <option value="Clara">Clara</option>
+    `;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "0.01";
+    input.placeholder = "Anteil (CHF)";
+    input.addEventListener("input", () => input.dataset.manual = "true");
+
+    const btn = document.createElement("button");
+    btn.textContent = "🗑";
+    btn.className = "remove-btn";
+    btn.onclick = () => {
+      row.remove();
+      autoDistribute();
+    };
+
+    row.appendChild(select);
+    row.appendChild(input);
+    row.appendChild(btn);
+    list.appendChild(row);
+  }
+
+  function autoDistribute() {
+    const total = parseFloat(document.getElementById("totalAmount").value);
+    const rows = document.querySelectorAll("#participantList .participant-row");
+
+    const customRows = [...rows].filter(r => r.querySelector("input").dataset.manual === "true");
+    const autoRows = [...rows].filter(r => !r.querySelector("input").dataset.manual);
+
+    const customSum = customRows.reduce((sum, r) => {
+      const val = parseFloat(r.querySelector("input").value);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+
+    const remaining = total - customSum;
+    const perPerson = autoRows.length > 0 ? (remaining / autoRows.length) : 0;
+
+    autoRows.forEach(r => {
+      const input = r.querySelector("input");
+      input.value = perPerson.toFixed(2);
+    });
+  }
+
+  function submitIOwe() {
+    const creditor = document.getElementById("creditorSelect").value;
+    const amount = parseFloat(document.getElementById("iOweAmount").value);
+    const description = document.getElementById("iOweDescription").value;
+    const date = document.getElementById("iOweDate").value;
+
+    if (!creditor || !amount || !description || !date) {
+      alert("Bitte alle Felder ausfüllen!");
+      return;
+    }
+
+    console.log({
+      creditor,
+      debtor: "Jascha",
+      amount,
+      description,
+      date,
+    });
+
+    alert("Einzelschuld erfasst (siehe Konsole)");
+  }
+
+  function submitTheyOwe() {
+    const amount = parseFloat(document.getElementById("totalAmount").value);
+    const description = document.getElementById("description").value;
+    const date = document.getElementById("date").value;
+    const rows = document.querySelectorAll("#participantList .participant-row");
+
+    if (!amount || !description || !date || rows.length === 0) {
+      alert("Bitte alle Felder ausfüllen und Teilnehmer hinzufügen!");
+      return;
+    }
+
+    const debtors = [...rows].map(r => {
+      return {
+        name: r.querySelector("select").value,
+        share: parseFloat(r.querySelector("input").value),
+      };
+    });
+
+    console.log({
+      creditor: "Jascha",
+      debtors,
+      total: amount,
+      description,
+      date,
+    });
+
+    alert("Mehrfachschuld erfasst (siehe Konsole)");
+  }
+</script>
+
+</body>
+</html>

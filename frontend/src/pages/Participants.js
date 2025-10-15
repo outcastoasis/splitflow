@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import "../styles/Participants.css";
+import { FiTrash2, FiEdit, FiSave, FiX, FiPlus } from "react-icons/fi";
 
 function Participants() {
   const [participants, setParticipants] = useState([]);
@@ -77,20 +78,25 @@ function Participants() {
 
   return (
     <div className="participants-container">
-      <h2>Teilnehmer verwalten</h2>
+      <h2>Teilnehmer</h2>
+
       <form className="participants-form" onSubmit={handleAdd}>
         <input
           type="text"
-          placeholder="Name eingeben"
+          placeholder="Neuen Teilnehmer eingeben"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <button type="submit">Hinzufügen</button>
+        <button type="submit" title="Teilnehmer hinzufügen">
+          <FiPlus />
+        </button>
       </form>
+
       {error && <p className="participants-error">{error}</p>}
       {successMessage && (
         <p className="participants-success">{successMessage}</p>
       )}
+
       <ul className="participants-list">
         {participants.map((p) => (
           <li key={p._id}>
@@ -101,18 +107,45 @@ function Participants() {
                   onChange={(e) => setNewName(e.target.value)}
                 />
                 <div className="button-group">
-                  <button onClick={() => handleUpdate(p._id)}>Speichern</button>
-                  <button onClick={() => setEditingId(null)}>Abbrechen</button>
+                  <button
+                    className="edit-button-participant"
+                    onClick={() => handleUpdate(p._id)}
+                    title="Speichern"
+                  >
+                    <FiSave />
+                  </button>
+                  <button
+                    className="delete-button-participant"
+                    onClick={() => setEditingId(null)}
+                    title="Abbrechen"
+                  >
+                    <FiX />
+                  </button>
                 </div>
               </>
             ) : (
               <>
-                {p.name}
+                <span className="participant-name">{p.name}</span>
                 <div className="button-group">
-                  <button onClick={() => handleEdit(p._id, p.name)}>
-                    Bearbeiten
+                  <button
+                    className="edit-button-participant"
+                    onClick={() => handleEdit(p._id, p.name)}
+                    title="Bearbeiten"
+                  >
+                    <FiEdit />
                   </button>
-                  <button onClick={() => handleDelete(p._id)}>Entfernen</button>
+                  <button
+                    className="delete-button-participant"
+                    onClick={() => {
+                      const confirmed = window.confirm(
+                        `Teilnehmer "${p.name}" wirklich löschen?`
+                      );
+                      if (confirmed) handleDelete(p._id);
+                    }}
+                    title="Entfernen"
+                  >
+                    <FiTrash2 />
+                  </button>
                 </div>
               </>
             )}

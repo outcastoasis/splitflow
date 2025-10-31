@@ -19,8 +19,11 @@ function AddExpense() {
     const fetchParticipants = async () => {
       const res = await fetch(`${API}/api/participants?user=${currentUser}`);
       const data = await res.json();
-      const filtered = data.filter((p) => p.name !== currentUser);
-      setAvailableParticipants(filtered);
+      const includesSelf = data.some((p) => p.name === currentUser);
+      const combined = includesSelf
+        ? data
+        : [...data, { name: currentUser, _id: "self" }];
+      setAvailableParticipants(combined);
     };
     fetchParticipants();
   }, [API, currentUser]);
@@ -122,6 +125,8 @@ function AddExpense() {
     }
 
     for (const p of participants) {
+      if (p.name === currentUser) continue; // keine Schuld an sich selbst erstellen
+
       await fetch(`${API}/api/debts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

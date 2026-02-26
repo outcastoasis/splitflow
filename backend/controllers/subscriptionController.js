@@ -11,7 +11,11 @@ const createMonthlyDebts = async (req, res) => {
 
   try {
     const today = dayjs();
-    const subscriptions = await Subscription.find({ isActive: true });
+    const subscriptions = await Subscription.find({
+      isActive: true,
+      isPaused: { $ne: true },
+      isDeleted: { $ne: true },
+    });
 
     let createdDebts = [];
 

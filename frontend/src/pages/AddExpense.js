@@ -95,9 +95,22 @@ function AddExpense() {
       return { ...p, share: perPerson.toFixed(2) };
     });
 
-    setParticipants(updated);
-    setManualWarningShown(false);
-  }, [amount, participants.length, participants.map((p) => p.share).join(",")]);
+    const changed =
+      participants.length !== updated.length ||
+      participants.some(
+        (p, i) =>
+          p.name !== updated[i].name ||
+          p.share !== updated[i].share ||
+          p.isCustom !== updated[i].isCustom
+      );
+
+    if (changed) {
+      setParticipants(updated);
+    }
+    if (manualWarningShown) {
+      setManualWarningShown(false);
+    }
+  }, [amount, manualWarningShown, participants]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,28 +137,39 @@ function AddExpense() {
       if (!confirmProceed) return;
     }
 
-    for (const p of participants) {
-      if (p.name === currentUser) continue; // keine Schuld an sich selbst erstellen
+    try {
+      for (const p of participants) {
+        if (p.name === currentUser) continue; // keine Schuld an sich selbst erstellen
 
-      await fetch(`${API}/api/debts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          creditor: currentUser,
-          debtor: p.name,
-          amount: parseFloat(p.share),
-          description,
-          date,
-        }),
-      });
+        const res = await fetch(`${API}/api/debts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            creditor: currentUser,
+            debtor: p.name,
+            amount: parseFloat(p.share),
+            description,
+            date,
+          }),
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          alert(result.error || `Fehler beim Speichern für ${p.name}.`);
+          return;
+        }
+      }
+
+      alert("Einnahme erfolgreich gespeichert!");
+      setDescription("");
+      setAmount("");
+      setDate("");
+      setParticipants([]);
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Speichern.");
     }
-
-    alert("Einnahme erfolgreich gespeichert!");
-    setDescription("");
-    setAmount("");
-    setDate("");
-    setParticipants([]);
-    navigate("/");
   };
 
   return (

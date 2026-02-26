@@ -8,7 +8,6 @@ function Subscriptions() {
   const API = process.env.REACT_APP_API;
   const navigate = useNavigate();
 
-  const [subscriptions, setSubscriptions] = useState([]);
   const [availableParticipants, setAvailableParticipants] = useState([]);
 
   const [name, setName] = useState("");
@@ -23,12 +22,6 @@ function Subscriptions() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const resSubs = await fetch(
-        `${API}/api/subscriptions?user=${currentUser}`
-      );
-      const subs = await resSubs.json();
-      setSubscriptions(subs);
-
       const resParts = await fetch(
         `${API}/api/participants?user=${currentUser}`
       );

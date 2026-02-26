@@ -24,6 +24,8 @@ router.post("/", async (req, res) => {
     const subscriptions = await Subscription.find({
       createdBy: user,
       isActive: true,
+      isPaused: { $ne: true },
+      isDeleted: { $ne: true },
     });
 
     let createdCount = 0;

@@ -41,19 +41,30 @@ function PersonDetails() {
       return;
     }
 
-    await fetch(`${API}/api/payments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        debtId: debt._id,
-        amount,
-        date: new Date(),
-        paidBy: currentUser,
-      }),
-    });
+    try {
+      const res = await fetch(`${API}/api/payments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          debtId: debt._id,
+          amount,
+          date: new Date(),
+          paidBy: currentUser,
+        }),
+      });
 
-    setPaymentInputs((prev) => ({ ...prev, [debt._id]: "" }));
-    fetchDebts();
+      const result = await res.json();
+      if (!res.ok) {
+        alert(result.error || "Fehler bei Zahlung.");
+        return;
+      }
+
+      setPaymentInputs((prev) => ({ ...prev, [debt._id]: "" }));
+      fetchDebts();
+    } catch (err) {
+      console.error(err);
+      alert("Fehler bei Zahlung.");
+    }
   };
 
   const handlePayAboDebts = async () => {
@@ -98,7 +109,7 @@ function PersonDetails() {
 
   const sortedDebts = [
     ...debts
-      .filter((d) => d.status === "open")
+      .filter((d) => d.status !== "paid")
       .sort((a, b) => new Date(b.date) - new Date(a.date)),
     ...debts
       .filter((d) => d.status === "paid")

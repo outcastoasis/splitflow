@@ -4,6 +4,7 @@ const router = express.Router();
 const Subscription = require("../models/Subscription");
 const { createMonthlyDebts } = require("../controllers/subscriptionController");
 const Debt = require("../models/Debt");
+const Payment = require("../models/Payment");
 const dayjs = require("dayjs");
 
 // Alle Abos eines Users abrufen
@@ -102,9 +103,14 @@ router.delete("/:id", async (req, res) => {
     }
 
     // alle Debts + Payments zum Abo löschen
+    const allSubscriptionDebts = await Debt.find({ subscriptionId }).select("_id");
+    const debtIds = allSubscriptionDebts.map((d) => d._id);
+
+    if (debtIds.length > 0) {
+      await Payment.deleteMany({ debtId: { $in: debtIds } });
+    }
+
     await Debt.deleteMany({ subscriptionId });
-    const Payment = require("../models/Payment");
-    await Payment.deleteMany({ debtId: { $in: openDebts.map((d) => d._id) } });
 
     // Abo selbst löschen
     await Subscription.findByIdAndDelete(subscriptionId);

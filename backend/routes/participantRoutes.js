@@ -3,6 +3,10 @@ const express = require("express");
 const router = express.Router();
 const Participant = require("../models/Participant");
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 // GET: Alle Teilnehmer eines Users
 router.get("/", async (req, res) => {
   const user = req.query.user; // z. B. ?user=Jascha
@@ -21,7 +25,7 @@ router.post("/", async (req, res) => {
     // Prüfen ob schon vorhanden (Case-insensitive)
     const exists = await Participant.findOne({
       createdBy,
-      name: { $regex: new RegExp("^" + name + "$", "i") },
+      name: { $regex: new RegExp("^" + escapeRegExp(name) + "$", "i") },
     });
     if (exists) {
       return res
@@ -60,7 +64,7 @@ router.put("/:id", async (req, res) => {
     const exists = await Participant.findOne({
       createdBy: participant.createdBy,
       _id: { $ne: participant._id },
-      name: { $regex: new RegExp("^" + newName + "$", "i") },
+      name: { $regex: new RegExp("^" + escapeRegExp(newName) + "$", "i") },
     });
     if (exists) {
       return res

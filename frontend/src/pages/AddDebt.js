@@ -31,20 +31,31 @@ function AddDebt() {
       return;
     }
 
-    await fetch(`${API}/api/debts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        creditor,
-        debtor: currentUser,
-        amount: parseFloat(amount),
-        description,
-        date,
-      }),
-    });
+    try {
+      const res = await fetch(`${API}/api/debts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          creditor,
+          debtor: currentUser,
+          amount: parseFloat(amount),
+          description,
+          date,
+        }),
+      });
 
-    alert("Schuld erfolgreich gespeichert!");
-    navigate("/");
+      const result = await res.json();
+      if (!res.ok) {
+        alert(result.error || "Fehler beim Speichern.");
+        return;
+      }
+
+      alert("Schuld erfolgreich gespeichert!");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Speichern.");
+    }
   };
 
   return (

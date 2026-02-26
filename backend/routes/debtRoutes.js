@@ -8,10 +8,24 @@ const Payment = require("../models/Payment");
 
 router.get("/", async (req, res) => {
   const user = req.query.user;
+  const subscriptionId = req.query.subscriptionId;
+
+  if (!user && !subscriptionId) {
+    return res.status(400).json({ error: "user oder subscriptionId erforderlich" });
+  }
+
   try {
-    const debts = await Debt.find({
-      $or: [{ creditor: user }, { debtor: user }],
-    });
+    const query = {};
+
+    if (subscriptionId) {
+      query.subscriptionId = subscriptionId;
+    }
+
+    if (user) {
+      query.$or = [{ creditor: user }, { debtor: user }];
+    }
+
+    const debts = await Debt.find(query);
 
     // Für jede Schuld auch Zahlungen holen
     const debtsWithPayments = await Promise.all(

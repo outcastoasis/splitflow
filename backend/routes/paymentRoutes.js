@@ -6,29 +6,55 @@ const Debt = require("../models/Debt");
 
 // Zahlung eintragen
 router.post("/", async (req, res) => {
-  const { debtId, from, to, amount, date } = req.body;
+  const { debtId, amount, date } = req.body;
+  const numericAmount = Number(amount);
+
+  if (!debtId || !Number.isFinite(numericAmount) || numericAmount <= 0) {
+    return res.status(400).json({ error: "Ungültige Angaben" });
+  }
 
   try {
-    // Zahlung speichern
-    const payment = new Payment({ debtId, from, to, amount, date });
-    await payment.save();
-
-    // Zahlungen für diese Schuld abrufen
-    const payments = await Payment.find({ debtId });
-    const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-
-    // Originalschuld abrufen
+    // Originalschuld zuerst prüfen, damit keine verwaisten Zahlungen entstehen
     const debt = await Debt.findById(debtId);
-
-    if (!debt) return res.status(404).json({ error: "Schuld nicht gefunden." });
-
-    // Falls vollständig bezahlt, als "paid" markieren
-    if (totalPaid >= debt.amount) {
-      debt.status = "paid";
-      await debt.save();
+    if (!debt) {
+      return res.status(404).json({ error: "Schuld nicht gefunden." });
     }
 
-    res.status(201).json({ message: "Zahlung erfasst", payment });
+    if (debt.status === "paid") {
+      return res.status(400).json({ error: "Schuld ist bereits vollständig bezahlt." });
+    }
+
+    const existingPayments = await Payment.find({ debtId });
+    const alreadyPaid = existingPayments.reduce((sum, p) => sum + p.amount, 0);
+    const remaining = debt.amount - alreadyPaid;
+
+    if (numericAmount > remaining + 0.000001) {
+      return res.status(400).json({
+        error: `Zahlung zu hoch. Offen sind nur noch ${remaining.toFixed(2)} CHF.`,
+      });
+    }
+
+    const payment = new Payment({
+      debtId,
+      from: debt.debtor,
+      to: debt.creditor,
+      amount: numericAmount,
+      date,
+    });
+    await payment.save();
+
+    const totalPaid = alreadyPaid + numericAmount;
+    debt.paidAmount = totalPaid;
+    debt.status = totalPaid >= debt.amount ? "paid" : "partial";
+    await debt.save();
+
+    res.status(201).json({
+      message: "Zahlung erfasst",
+      payment,
+      debtStatus: debt.status,
+      paidAmount: debt.paidAmount,
+      remaining: Math.max(0, debt.amount - debt.paidAmount),
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Fehler beim Erfassen der Zahlung" });
@@ -38,8 +64,9 @@ router.post("/", async (req, res) => {
 // Zahlung auf Abo-Schulden verteilen
 router.post("/abos", async (req, res) => {
   const { debtor, creditor, amount } = req.body;
+  const numericAmount = Number(amount);
 
-  if (!debtor || !creditor || !amount || amount <= 0) {
+  if (!debtor || !creditor || !Number.isFinite(numericAmount) || numericAmount <= 0) {
     return res.status(400).json({ error: "Ungültige Angaben" });
   }
 
@@ -51,7 +78,23 @@ router.post("/abos", async (req, res) => {
       status: { $ne: "paid" },
     }).sort({ date: 1 }); // älteste zuerst
 
-    let remaining = amount;
+    const totalOpen = debts.reduce((sum, debt) => {
+      const alreadyPaid = debt.paidAmount || 0;
+      const unpaid = Math.max(0, debt.amount - alreadyPaid);
+      return sum + unpaid;
+    }, 0);
+
+    if (totalOpen <= 0) {
+      return res.status(400).json({ error: "Keine offenen Abo-Schulden vorhanden." });
+    }
+
+    if (numericAmount > totalOpen + 0.000001) {
+      return res.status(400).json({
+        error: `Zahlung zu hoch. Offen sind nur noch ${totalOpen.toFixed(2)} CHF.`,
+      });
+    }
+
+    let remaining = numericAmount;
     const createdPayments = [];
 
     for (const debt of debts) {
@@ -90,7 +133,7 @@ router.post("/abos", async (req, res) => {
 
     res.json({
       message: "Abo-Zahlung verarbeitet",
-      totalProcessed: amount - remaining,
+      totalProcessed: numericAmount - remaining,
       remaining,
       payments: createdPayments,
     });

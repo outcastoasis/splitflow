@@ -13,10 +13,9 @@ function Dashboard() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [recentDebts, setRecentDebts] = useState([]);
 
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [showOnlyOpen, setShowOnlyOpen] = useState(true);
+  const selectedMonth = "";
+  const showOnlyOpen = true;
   const [searchText, setSearchText] = useState("");
-  const [monthOptions, setMonthOptions] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +24,7 @@ function Dashboard() {
 
       const grouped = {};
       data
-        .filter((debt) => debt.status === "open")
+        .filter((debt) => debt.status !== "paid")
         .forEach((debt) => {
           const other =
             debt.creditor === currentUser ? debt.debtor : debt.creditor;
@@ -61,13 +60,6 @@ function Dashboard() {
         .slice(0, 50);
       setRecentDebts(allDebts);
 
-      const months = Array.from(
-        new Set(
-          allDebts.map((debt) => new Date(debt.date).toISOString().slice(0, 7))
-        )
-      ).sort((a, b) => b.localeCompare(a));
-      setMonthOptions(months);
-
       const resSubs = await fetch(
         `${API}/api/subscriptions?user=${currentUser}`
       );
@@ -83,7 +75,7 @@ function Dashboard() {
       const dateString = new Date(debt.date).toISOString().slice(0, 7);
       if (dateString !== selectedMonth) return false;
     }
-    if (showOnlyOpen && debt.status !== "open") return false;
+    if (showOnlyOpen && debt.status === "paid") return false;
     if (
       searchText &&
       !(
@@ -234,7 +226,7 @@ function Dashboard() {
                   {!debt.isFromSubscription && " (Einmalig)"}
                 </span>
                 <span>
-                  {debt.status === "open" ? (
+                  {debt.status !== "paid" ? (
                     <button
                       className="btn"
                       onClick={() =>

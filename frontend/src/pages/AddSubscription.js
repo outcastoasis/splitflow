@@ -103,17 +103,28 @@ function AddSubscription() {
       })),
     };
 
-    await fetch(`${API}/api/subscriptions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(`${API}/api/subscriptions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    setName("");
-    setAmount("");
-    setStartDate("");
-    setParticipants([]);
-    navigate("/");
+      const result = await res.json();
+      if (!res.ok) {
+        alert(result.error || "Fehler beim Speichern.");
+        return;
+      }
+
+      setName("");
+      setAmount("");
+      setStartDate("");
+      setParticipants([]);
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Speichern.");
+    }
   };
 
   return (

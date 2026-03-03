@@ -4,7 +4,7 @@ import { FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 function AddDebt() {
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
   const currentUser = "Jascha"; // du bist immer der Schuldner
   const navigate = useNavigate();
 

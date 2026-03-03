@@ -5,7 +5,7 @@ import { FiTrash2, FiPlus } from "react-icons/fi";
 
 function AddExpense() {
   const currentUser = "Jascha"; // du bist immer der Gläubiger
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
   const navigate = useNavigate();
 
   const [availableParticipants, setAvailableParticipants] = useState([]);
@@ -31,7 +31,7 @@ function AddExpense() {
   const handleAddParticipant = () => {
     const usedNames = participants.map((p) => p.name);
     const unused = availableParticipants.find(
-      (p) => !usedNames.includes(p.name)
+      (p) => !usedNames.includes(p.name),
     );
     if (!unused) return;
     setParticipants([
@@ -73,14 +73,14 @@ function AddExpense() {
     const dynamic = participants.filter((p) => !p.isCustom);
     const fixedSum = fixed.reduce(
       (sum, p) => sum + parseFloat(p.share || 0),
-      0
+      0,
     );
 
     // Wenn alle Beträge manuell festgelegt -> Warnung
     if (participants.length > 0 && fixed.length === participants.length) {
       if (!manualWarningShown) {
         alert(
-          "Hinweis: Alle Beträge wurden manuell angepasst. Die automatische Aufteilung wird deaktiviert."
+          "Hinweis: Alle Beträge wurden manuell angepasst. Die automatische Aufteilung wird deaktiviert.",
         );
         setManualWarningShown(true);
       }
@@ -101,7 +101,7 @@ function AddExpense() {
         (p, i) =>
           p.name !== updated[i].name ||
           p.share !== updated[i].share ||
-          p.isCustom !== updated[i].isCustom
+          p.isCustom !== updated[i].isCustom,
       );
 
     if (changed) {
@@ -123,16 +123,16 @@ function AddExpense() {
     // Prüfen, ob Summe korrekt mit Gesamtbetrag übereinstimmt
     const totalEntered = participants.reduce(
       (sum, p) => sum + parseFloat(p.share || 0),
-      0
+      0,
     );
 
     if (Math.abs(totalEntered - parseFloat(amount)) > 0.01) {
       const confirmProceed = window.confirm(
         `Die Summe der Einzelbeträge (${totalEntered.toFixed(
-          2
+          2,
         )} CHF) stimmt nicht mit dem Gesamtbetrag (${parseFloat(amount).toFixed(
-          2
-        )} CHF) überein.\n\nTrotzdem speichern?`
+          2,
+        )} CHF) überein.\n\nTrotzdem speichern?`,
       );
       if (!confirmProceed) return;
     }
@@ -228,7 +228,7 @@ function AddExpense() {
                       key={option._id}
                       value={option.name}
                       disabled={participants.some(
-                        (pp, i) => i !== index && pp.name === option.name
+                        (pp, i) => i !== index && pp.name === option.name,
                       )}
                     >
                       {option.name}
@@ -244,7 +244,7 @@ function AddExpense() {
                     handleParticipantChange(
                       index,
                       "share",
-                      parseFloat(e.target.value)
+                      parseFloat(e.target.value),
                     )
                   }
                   onDoubleClick={() => resetShare(index)}

@@ -5,7 +5,7 @@ import "../styles/EditSubscription.css";
 
 function EditSubscription() {
   const { id } = useParams();
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
   const navigate = useNavigate();
   const currentUser = "Jascha";
 
@@ -26,13 +26,13 @@ function EditSubscription() {
       const resDebts = await fetch(`${API}/api/debts?subscriptionId=${id}`);
       const debts = await resDebts.json();
       const hasOpen = debts.some(
-        (d) => d.status === "open" || d.status === "partial"
+        (d) => d.status === "open" || d.status === "partial",
       );
       setCanDelete(!hasOpen);
 
       // Teilnehmer laden
       const resParts = await fetch(
-        `${API}/api/participants?user=${currentUser}`
+        `${API}/api/participants?user=${currentUser}`,
       );
       const parts = await resParts.json();
       const includesSelf = parts.some((p) => p.name === currentUser);
@@ -72,7 +72,7 @@ function EditSubscription() {
   const handleDelete = async () => {
     if (
       !window.confirm(
-        "Willst du dieses Abo wirklich löschen? Das geht nur, wenn keine offenen Schulden mehr vorhanden sind."
+        "Willst du dieses Abo wirklich löschen? Das geht nur, wenn keine offenen Schulden mehr vorhanden sind.",
       )
     )
       return;
@@ -95,13 +95,13 @@ function EditSubscription() {
 
   const totalShare = subscription.participants.reduce(
     (sum, p) => sum + p.share,
-    0
+    0,
   );
   const sharesMatch = Math.abs(totalShare - subscription.amount) < 0.01;
 
   const usedNames = subscription.participants.map((p) => p.name);
   const availableOptions = availableParticipants.filter(
-    (p) => !usedNames.includes(p.name)
+    (p) => !usedNames.includes(p.name),
   );
 
   return (

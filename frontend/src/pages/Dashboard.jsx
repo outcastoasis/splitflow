@@ -7,7 +7,7 @@ import ChartSummary from "../components/ChartSummary";
 function Dashboard() {
   const currentUser = "Jascha";
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
 
   const [summary, setSummary] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
@@ -54,14 +54,14 @@ function Dashboard() {
         .filter(
           (debt) =>
             (debt.creditor === currentUser || debt.debtor === currentUser) &&
-            debt.status !== "paid"
+            debt.status !== "paid",
         )
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 50);
       setRecentDebts(allDebts);
 
       const resSubs = await fetch(
-        `${API}/api/subscriptions?user=${currentUser}`
+        `${API}/api/subscriptions?user=${currentUser}`,
       );
       const subs = await resSubs.json();
       setSubscriptions(subs);
@@ -91,15 +91,15 @@ function Dashboard() {
   });
 
   const filteredSummary = summary.filter((entry) =>
-    entry.name.toLowerCase().includes(searchText.toLowerCase())
+    entry.name.toLowerCase().includes(searchText.toLowerCase()),
   );
 
   const filteredSubscriptions = subscriptions.filter(
     (sub) =>
       sub.name.toLowerCase().includes(searchText.toLowerCase()) ||
       sub.participants.some((p) =>
-        p.name.toLowerCase().includes(searchText.toLowerCase())
-      )
+        p.name.toLowerCase().includes(searchText.toLowerCase()),
+      ),
   );
 
   return (
@@ -136,15 +136,15 @@ function Dashboard() {
                     entry.net > 0
                       ? "status-offen"
                       : entry.net < 0
-                      ? "status-schuldest"
-                      : "status-bezahlt"
+                        ? "status-schuldest"
+                        : "status-bezahlt"
                   }`}
                 >
                   {entry.net > 0
                     ? "offen"
                     : entry.net < 0
-                    ? "du schuldest"
-                    : "bezahlt"}
+                      ? "du schuldest"
+                      : "bezahlt"}
                 </span>
               </div>
               <div className="amount-display">
@@ -156,8 +156,8 @@ function Dashboard() {
                   {entry.net > 0
                     ? `+${entry.net.toFixed(2)} CHF`
                     : entry.net < 0
-                    ? `-${Math.abs(entry.net).toFixed(2)} CHF`
-                    : "0.00 CHF"}
+                      ? `-${Math.abs(entry.net).toFixed(2)} CHF`
+                      : "0.00 CHF"}
                 </span>
               </div>
             </div>
@@ -235,7 +235,7 @@ function Dashboard() {
                             debt.creditor === currentUser
                               ? debt.debtor
                               : debt.creditor
-                          }`
+                          }`,
                         )
                       }
                     >

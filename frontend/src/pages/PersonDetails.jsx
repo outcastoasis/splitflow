@@ -8,7 +8,7 @@ function PersonDetails() {
   const currentUser = "Jascha";
   const { name } = useParams();
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
 
   const [debts, setDebts] = useState([]);
   const [paymentInputs, setPaymentInputs] = useState({});
@@ -21,7 +21,7 @@ function PersonDetails() {
     const filtered = data.filter(
       (d) =>
         (d.creditor === name && d.debtor === currentUser) ||
-        (d.debtor === name && d.creditor === currentUser)
+        (d.debtor === name && d.creditor === currentUser),
     );
     setDebts(filtered);
   }, [API, currentUser, name]);
@@ -124,7 +124,7 @@ function PersonDetails() {
       d.debtor === name &&
       d.creditor === currentUser &&
       d.isFromSubscription &&
-      d.status !== "paid"
+      d.status !== "paid",
   );
 
   const totalAboDebt = openAboDebts.reduce((sum, d) => {
@@ -220,8 +220,8 @@ function PersonDetails() {
         const rest = (d.amount - (d.paidAmount || 0)).toFixed(2);
         lines.push(
           `- ${rest} CHF für "${d.description}" (${new Date(
-            d.date
-          ).toLocaleDateString("de-CH")})`
+            d.date,
+          ).toLocaleDateString("de-CH")})`,
         );
       });
       lines.push("");
@@ -233,8 +233,8 @@ function PersonDetails() {
         const rest = (d.amount - (d.paidAmount || 0)).toFixed(2);
         lines.push(
           `- ${rest} CHF für "${d.description}" (${new Date(
-            d.date
-          ).toLocaleDateString("de-CH")})`
+            d.date,
+          ).toLocaleDateString("de-CH")})`,
         );
       });
       lines.push("");

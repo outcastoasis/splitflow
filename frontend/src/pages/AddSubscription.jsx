@@ -5,7 +5,7 @@ import { FiTrash2, FiPlus } from "react-icons/fi";
 
 function AddSubscription() {
   const currentUser = "Jascha";
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
   const navigate = useNavigate();
 
   const [availableParticipants, setAvailableParticipants] = useState([]);
@@ -17,7 +17,7 @@ function AddSubscription() {
   useEffect(() => {
     const fetchData = async () => {
       const resParts = await fetch(
-        `${API}/api/participants?user=${currentUser}`
+        `${API}/api/participants?user=${currentUser}`,
       );
       const parts = await resParts.json();
       const includesSelf = parts.some((p) => p.name === currentUser);
@@ -32,7 +32,7 @@ function AddSubscription() {
   const handleAddParticipant = () => {
     const usedNames = participants.map((p) => p.name);
     const unused = availableParticipants.find(
-      (p) => !usedNames.includes(p.name)
+      (p) => !usedNames.includes(p.name),
     );
     if (!unused) return;
     setParticipants([
@@ -69,7 +69,7 @@ function AddSubscription() {
     const dynamic = participants.filter((p) => !p.isCustom);
     const fixedSum = fixed.reduce(
       (sum, p) => sum + parseFloat(p.share || 0),
-      0
+      0,
     );
     const remaining = total - fixedSum;
     const perPerson = dynamic.length > 0 ? remaining / dynamic.length : 0;
@@ -82,7 +82,7 @@ function AddSubscription() {
     const changed =
       participants.length !== updated.length ||
       participants.some(
-        (p, i) => p.share !== updated[i].share || p.name !== updated[i].name
+        (p, i) => p.share !== updated[i].share || p.name !== updated[i].name,
       );
 
     if (changed) {
@@ -183,7 +183,7 @@ function AddSubscription() {
                       key={option._id}
                       value={option.name}
                       disabled={participants.some(
-                        (pp, i) => i !== index && pp.name === option.name
+                        (pp, i) => i !== index && pp.name === option.name,
                       )}
                     >
                       {option.name}
@@ -199,7 +199,7 @@ function AddSubscription() {
                     handleParticipantChange(
                       index,
                       "share",
-                      parseFloat(e.target.value)
+                      parseFloat(e.target.value),
                     )
                   }
                   onDoubleClick={() => resetShare(index)}

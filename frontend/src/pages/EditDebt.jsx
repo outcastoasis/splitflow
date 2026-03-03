@@ -6,7 +6,7 @@ import "../styles/EditDebt.css";
 function EditDebt() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
 
   const [debt, setDebt] = useState(null);
   const [amount, setAmount] = useState("");

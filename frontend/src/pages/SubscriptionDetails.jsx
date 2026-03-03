@@ -5,7 +5,7 @@ import "../styles/SubscriptionDetails.css";
 function SubscriptionDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
 
   const [subscription, setSubscription] = useState(null);
 

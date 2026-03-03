@@ -8,7 +8,7 @@ function Participants() {
   const [editingId, setEditingId] = useState(null);
   const [newName, setNewName] = useState("");
   const currentUser = "Jascha";
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -138,7 +138,7 @@ function Participants() {
                     className="delete-button-participant"
                     onClick={() => {
                       const confirmed = window.confirm(
-                        `Teilnehmer "${p.name}" wirklich löschen?`
+                        `Teilnehmer "${p.name}" wirklich löschen?`,
                       );
                       if (confirmed) handleDelete(p._id);
                     }}

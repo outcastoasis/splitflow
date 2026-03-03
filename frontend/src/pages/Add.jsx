@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 function Subscriptions() {
   const currentUser = "Jascha";
-  const API = process.env.REACT_APP_API;
+  const API = import.meta.env.VITE_API;
   const navigate = useNavigate();
 
   const [availableParticipants, setAvailableParticipants] = useState([]);
@@ -23,7 +23,7 @@ function Subscriptions() {
   useEffect(() => {
     const fetchData = async () => {
       const resParts = await fetch(
-        `${API}/api/participants?user=${currentUser}`
+        `${API}/api/participants?user=${currentUser}`,
       );
       const parts = await resParts.json();
 
@@ -40,7 +40,7 @@ function Subscriptions() {
   const handleAddParticipant = () => {
     const usedNames = participants.map((p) => p.name);
     const unused = availableParticipants.find(
-      (p) => !usedNames.includes(p.name)
+      (p) => !usedNames.includes(p.name),
     );
     if (!unused) return;
     setParticipants([
@@ -78,7 +78,7 @@ function Subscriptions() {
 
     const fixedSum = fixed.reduce(
       (sum, p) => sum + parseFloat(p.share || 0),
-      0
+      0,
     );
     const remaining = total - fixedSum;
     const perPerson = dynamic.length > 0 ? remaining / dynamic.length : 0;
@@ -91,7 +91,7 @@ function Subscriptions() {
     const changed =
       participants.length !== updated.length ||
       participants.some(
-        (p, i) => p.share !== updated[i].share || p.name !== updated[i].name
+        (p, i) => p.share !== updated[i].share || p.name !== updated[i].name,
       );
 
     if (changed) {
@@ -279,7 +279,7 @@ function Subscriptions() {
                   key={option._id}
                   value={option.name}
                   disabled={participants.some(
-                    (pp, i) => i !== index && pp.name === option.name
+                    (pp, i) => i !== index && pp.name === option.name,
                   )}
                 >
                   {option.name}
@@ -295,7 +295,7 @@ function Subscriptions() {
                 handleParticipantChange(
                   index,
                   "share",
-                  parseFloat(e.target.value)
+                  parseFloat(e.target.value),
                 )
               }
               onDoubleClick={() => resetShare(index)}
